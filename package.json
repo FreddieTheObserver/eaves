@@ -1,0 +1,16 @@
+{
+  "name": "eaves",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel run dev",
+    "dev:web": "pnpm --filter @eaves/web dev",
+    "dev:cms": "pnpm --filter @eaves/cms develop",
+    "build": "pnpm --recursive --if-present run build",
+    "lint": "pnpm --recursive --if-present run lint",
+    "typecheck": "pnpm --recursive --if-present run typecheck",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "packageManager": "pnpm@10.33.0"
+}
