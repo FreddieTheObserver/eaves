@@ -6,17 +6,32 @@ Eain, its people, and its work are invented for a portfolio demo.
 ## The practice
 
 **Studio**:
-Eain, the fictional practice itself: a small Bangkok studio working in architecture and interiors.
+Eain, the fictional practice itself: a small Bangkok studio offering architectural and interior design services.
+The Studio designs only; it does not provide licensed engineering, construction, or construction management.
 _Avoid_: Company, firm, agency, business
 
 **Service**:
-A design service the Studio offers, defined by the spaces it covers and the work it includes, such as Residential Interior Design or Architectural Design.
+A design service the Studio offers, described by its Spaces and its Scope, such as Residential Interior Design or Architectural Design.
 _Avoid_: Discipline, offering, capability
+
+**Spaces**:
+The kinds of space a Service covers, such as houses, condominiums, or cafes.
+Spaces describe a Service; a Typology classifies a Project.
+_Avoid_: Sectors, building types
+
+**Scope**:
+The work a Service includes, such as space planning, 3D visualization, or design documentation.
+_Avoid_: Deliverables, inclusions, features
 
 **Team Member**:
 A person shown publicly as part of the Studio.
 A Team Member is not necessarily a CMS User.
 _Avoid_: Staff, employee, profile
+
+**Position**:
+A Team Member's job title at the Studio, such as Founding Partner.
+Not to be confused with the role a Credit names on a single Project.
+_Avoid_: Title, job, role
 
 ## Portfolio
 
@@ -25,7 +40,7 @@ A piece of the Studio's work presented in the portfolio.
 _Avoid_: Work, case study, portfolio item
 
 **Typology**:
-The kind of building or space a Project is, such as Residential or Workplace; each Project has exactly one.
+The kind of building or space a Project is: Residential, Commercial, or Workplace; each Project has exactly one.
 _Avoid_: Category, type, sector
 
 **Concept**:
