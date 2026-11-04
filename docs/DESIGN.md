@@ -279,9 +279,11 @@ Each field is marked now, because Strapi stores the choice with the field's defi
 
 | Per language | Shared across languages |
 | --- | --- |
-| Titles, names, slugs, summaries, excerpts, bodies, Spaces, Scope, Position, bios, Credit roles, location text, SEO text, Section text, Site Settings text | Year, floor area, status, Typology, Services, which Team Members are credited, Byline, Topic, related Projects, cover images and portraits, order, Publication date |
+| Titles, names, slugs, summaries, excerpts, bodies, Spaces, Scope, Position, bios, Credits, location text, SEO text, Sections, Site Settings | Year, floor area, status, Typology, Services, Byline, Topic, related Projects, cover images and portraits, order, Publication date |
 
-A body of Blocks is localized as a whole, so images inside a body belong to its language.
+Strapi localizes a component, a body of Blocks, or a list of Sections as a whole, so images inside a body belong to its language.
+For the same reason Credits, both who is credited and their role, are per language, and a translation copies the Credits and translates the roles.
+Strapi documents that relations can be shared across languages; whether media fields can be shared too is confirmed in layer 1, before the schema is locked.
 
 ## 8. Editorial model
 
@@ -301,7 +303,8 @@ There is no email provider in the CMS, so a Super Admin resets forgotten passwor
 Pages are cached by default and cleared when content changes.
 The content module wraps every query in Next.js 16 Cache Components (`use cache` with `cacheTag`), tagged by content type, by document, and by every document the page displays indirectly.
 For example, a Project page carries the tags of the Team Members in its Credits, so renaming a Team Member refreshes every page that shows them.
-A Strapi webhook fires on publish, unpublish, delete, and media changes, and calls a secret-protected route in the web app, which invalidates the matching tags.
+A Strapi webhook calls a secret-protected route in the web app, which invalidates the matching tags.
+It fires on publish, unpublish, and delete for types with Draft and Publish, on create, update, and delete for Typology, Topic, and Slug history, which have no Draft and Publish, and on media changes.
 The exact `revalidateTag` profile is confirmed against the Next.js 16 documentation while building the web data layer.
 If the CMS is down, visitors still get cached pages.
 
@@ -346,6 +349,7 @@ The web app allows framing only by the CMS origin, through a `frame-ancestors` c
 
 When a published slug changes, the CMS records the old path in Slug history.
 Before answering with a 404, the web app looks up the path there and, if found, answers with a permanent (301) redirect to the current URL.
+The lookup is cached under its own tag, so a new redirect takes effect as soon as it is recorded.
 Editors can therefore change slugs freely without breaking old links or search results.
 
 ## 10. Web app
@@ -519,7 +523,21 @@ flowchart LR
 
 Tests are written alongside each layer; layer 6 closes the remaining gaps.
 
-## 16. Open items
+## 16. Added in this document
+
+These choices were made while writing this document rather than in the interview, and any of them can be overturned:
+
+- Draft and Publish is off for Typology, Topic, Inquiry, and Slug history.
+- Typology and Topic are collection types rather than fixed lists, so their names can be translated later.
+- Authors may upload images, so they can illustrate their own Articles.
+- Credits are per language as a whole, because Strapi cannot localize part of a component.
+- The VPS firewall accepts web traffic only from Cloudflare, so Cloudflare Access cannot be bypassed through the server's IP address.
+- Caddy uses a Cloudflare Origin CA certificate, with Cloudflare's SSL mode set to Full (strict).
+- The not-found page text lives in Site Settings.
+- The Inquiry route is rate-limited by the visitor IP that the web app's server action passes along.
+- CORS on the content API is limited to the web app's origins.
+
+## 17. Open items
 
 - Rename the local folder from `C:\Users\user\eain` to `C:\Users\user\eaves`.
 - Run the Thailand signup checks for Hetzner and R2 before creating either account.
