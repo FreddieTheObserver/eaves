@@ -7,7 +7,7 @@ Eaves, its people, and its work are invented for a portfolio demo.
 
 **Studio**:
 Eaves, the fictional practice itself: a small Bangkok studio offering architectural and interior design services.
-The Studio designs only; it does not provide licensed engineering, construction, or construction management.
+The Studio designs only; it claims no professional licence and does not provide engineering, construction, or construction management.
 _Avoid_: Company, firm, agency, business
 
 **Service**:
@@ -48,7 +48,8 @@ A Project the Studio designed that has not been built.
 _Avoid_: Unbuilt, proposal
 
 **Credit**:
-A Team Member named on a Project together with their role on it, such as Project architect.
+A Team Member named on a Project together with their role on it, such as Lead designer.
+Only Team Members are credited; outside firms and people are never named.
 _Avoid_: Contributor, team
 
 ## Journal
@@ -96,7 +97,7 @@ The site-wide content an Editor manages in one place: the Studio's contact detai
 _Avoid_: Global, config
 
 **Demo Notice**:
-The site-wide statement that the Studio and everything shown on the site are fictional.
+The site-wide statement that the Studio, its people, and its work are fictional and that every image is AI-generated.
 _Avoid_: Disclaimer
 
 ## Visitors
