@@ -55,7 +55,7 @@ Every Project has exactly one Typology: Residential, Commercial, or Workplace.
 | CMS | Strapi 5 Community Edition |
 | Database | PostgreSQL |
 | Media storage | Cloudflare R2 through Strapi's official S3 upload provider; MinIO locally |
-| Package manager | pnpm workspace, with `node-linker=hoisted` in `.npmrc` if Strapi needs it |
+| Package manager | pnpm workspace with the default isolated linker; Strapi 5 builds and boots without `node-linker=hoisted` |
 | Local infrastructure | Docker Compose |
 | Runtime | The newest Node LTS that Strapi supports when the project is scaffolded |
 
@@ -73,7 +73,8 @@ eaves/
 ├── docker-compose.yml    Postgres and MinIO for local development
 ├── GLOSSARY.md
 ├── .gitattributes        forces LF line endings
-└── .npmrc
+├── .gitignore
+└── .nvmrc                pins the Node version for local development and CI
 ```
 
 The code is MIT licensed.
@@ -512,7 +513,7 @@ flowchart LR
 
 | Layer | Work |
 | --- | --- |
-| 0 Foundations | pnpm workspace, `apps/web` and `apps/cms` scaffolds, shared config, `.gitattributes`, `.npmrc`, Compose with Postgres and MinIO, CI skeleton |
+| 0 Foundations | pnpm workspace, `apps/web` and `apps/cms` scaffolds, shared config, `.gitattributes`, `.gitignore`, `.nvmrc`, Compose with Postgres and MinIO, CI skeleton |
 | 1 Schema and contract | Every content type, component, Block, and Section in Strapi; localization and Draft and Publish flags; roles, permissions, and API tokens; zod schemas and domain types in the content module |
 | 2 CMS behaviour | Upload provider, Preview configuration, webhooks, slug history hook, Inquiry route with rate limiting, retention job, seed script and seed content |
 | 3 Web data layer | Content module queries with cache tags, revalidation route, preview route and draft mode, slug history redirects, Inquiry server action with Turnstile |
@@ -542,6 +543,5 @@ These choices were made while writing this document rather than in the interview
 - Rename the local folder from `C:\Users\user\eain` to `C:\Users\user\eaves`.
 - Run the Thailand signup checks for Hetzner and R2 before creating either account.
 - Create the public `FreddieTheObserver/eaves` repository when the first code lands.
-- Confirm at scaffold time whether Strapi needs `node-linker=hoisted` under pnpm.
 - Pick typefaces and the AI image tool during the Figma pass.
 - Choose the Studio's contact email address on `layaungphyo.dev`.
