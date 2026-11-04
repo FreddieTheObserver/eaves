@@ -1,11 +1,11 @@
 # Fictional content policy
 
-Eain is a fictional studio built as a portfolio demo, so nothing on the site may present real work, real people, or real contact details as the Studio's own.
+Eaves is a fictional studio built as a portfolio demo, so nothing on the site may present real work, real people, or real contact details as the Studio's own.
 Project imagery and Team Member portraits are AI-generated or abstract, never stock photos of real buildings and interiors, because a licensed photo of a real space still credits someone else's built work to a fictional firm.
-The Studio is design-only: no copy, Service, or Project may imply licensed engineering, construction, or construction-management services, so a Completed or Under construction Project is built by others to Eain's design, and that scope changes only by a deliberate decision.
+The Studio is design-only: no copy, Service, or Project may imply licensed engineering, construction, or construction-management services, so a Completed or Under construction Project is built by others to the Studio's design, and that scope changes only by a deliberate decision.
 Contact details are invented (no real street address or phone number, and email only on a domain we own), Projects have no client field because an invented client name can collide with a real business, and a Demo Notice appears in the site footer and on an About this demo page.
 Search engines may index the site, so the demo can be found and its SEO work checked in real search results; blocking indexing in production was considered and rejected.
-To keep those results honest, page descriptions say up front that the Studio is fictional, and structured data never describes Eain as a local business with an address, phone number, or opening hours.
+To keep those results honest, page descriptions say up front that the Studio is fictional, and structured data never describes the Studio as a local business with an address, phone number, or opening hours.
 
 ## Consequences
 

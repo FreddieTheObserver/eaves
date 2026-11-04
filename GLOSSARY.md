@@ -1,12 +1,12 @@
-# Eain Website
+# Eaves Website
 
-The public website and editorial CMS of Eain, a fictional Bangkok architecture and interior design studio.
-Eain, its people, and its work are invented for a portfolio demo.
+The public website and editorial CMS of Eaves, a fictional Bangkok architecture and interior design studio.
+Eaves, its people, and its work are invented for a portfolio demo.
 
 ## The practice
 
 **Studio**:
-Eain, the fictional practice itself: a small Bangkok studio offering architectural and interior design services.
+Eaves, the fictional practice itself: a small Bangkok studio offering architectural and interior design services.
 The Studio designs only; it does not provide licensed engineering, construction, or construction management.
 _Avoid_: Company, firm, agency, business
 
