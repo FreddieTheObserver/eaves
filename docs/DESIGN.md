@@ -280,11 +280,18 @@ Each field is marked now, because Strapi stores the choice with the field's defi
 
 | Per language | Shared across languages |
 | --- | --- |
-| Titles, names, slugs, summaries, excerpts, bodies, Spaces, Scope, Position, bios, Credits, location text, SEO text, Sections, Site Settings | Year, floor area, status, Typology, Services, Byline, Topic, related Projects, cover images and portraits, order, Publication date |
+| Titles, names, slugs, summaries, excerpts, bodies, Spaces, Scope, Position, bios, Credits, location text, SEO text, Sections, Site Settings, and every link between entries (Typology, Services, Byline, Topic, related Projects) | Year, floor area, status, cover images and portraits, order, Publication date |
 
 Strapi localizes a component, a body of Blocks, or a list of Sections as a whole, so images inside a body belong to its language.
 For the same reason Credits, both who is credited and their role, are per language, and a translation copies the Credits and translates the roles.
-Strapi documents that relations can be shared across languages; whether media fields can be shared too is confirmed in layer 1, before the schema is locked.
+A spike on Strapi 5.61.0 at the start of layer 1 settled what can be shared, testing through the Document Service rather than the admin panel.
+Scalar and media fields marked as shared are copied to every language.
+A new translation starts with the English values, and editing them in any language updates the others, with the last write winning.
+Draft and published versions sync separately, so a published page keeps its old image until it is published again.
+Relations are not shared when both ends are localized: each language links its own entries, and a relation set on one language never reaches another.
+A Thai Project therefore points at the Thai Typology, Services, Team Members, Topic, and Projects, and a translation sets its relations again.
+This suits the design, because a Thai Typology has to show its Thai name.
+It costs nothing at launch, since English is the only language.
 
 ## 8. Editorial model
 
