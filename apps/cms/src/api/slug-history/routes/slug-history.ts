@@ -1,3 +1,3 @@
-import { factories } from '@strapi/strapi';
+import { createGatedRouter } from '../../../utils/create-gated-router';
 
-export default factories.createCoreRouter('api::slug-history.slug-history');
+export default createGatedRouter('api::slug-history.slug-history', 'collection');

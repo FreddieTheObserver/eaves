@@ -305,6 +305,8 @@ It costs nothing at launch, since English is the only language.
 
 An Author drafts, an Editor reviews in Preview and publishes.
 There are no formal review stages, because Review Workflows are an Enterprise feature.
+Roles are defined in code and applied on every Strapi start, so a change made to the Editor or Author role in the admin panel is undone at the next start.
+An Editor cannot delete content, which stays a Super Admin task, and an Author cannot set the Publication date, which belongs to Editors.
 Content types change only in code: Strapi's Content-Type Builder works only in development mode, so a schema change is a reviewed commit, and Editors manage content, never its structure.
 There is no email provider in the CMS, so a Super Admin resets forgotten passwords by hand.
 
@@ -401,7 +403,10 @@ Pages and components never see a Strapi response shape.
 | Inquiry | Creating Inquiries, nothing else | The contact form's server action |
 
 All three live only on the server.
-Strapi's Public role has no permissions.
+Strapi's Public role has no permissions, and the CMS empties it on every start.
+Strapi does not stop a token that can read content from asking for drafts with `?status=draft`, so a route policy refuses that request unless the token is named Draft.
+The CMS creates the three tokens on start if they are missing and deletes the Read Only and Full Access tokens that Strapi seeds on a first start.
+It never logs a key: the keys are copied from the admin panel into the web app's environment.
 
 ### Images
 
@@ -444,6 +449,8 @@ shadcn/ui provides behaviour, not the look.
 - The Inquiry create route is rate-limited by visitor IP.
 - A daily scheduled job deletes Inquiries older than 90 days.
 - A seed script loads the versioned seed content into an empty CMS.
+- A bootstrap step applies the Editor and Author permissions, empties the Public role, and creates the three API tokens.
+- A route policy on every read route refuses draft requests unless the token is the Draft token.
 
 ### Security
 

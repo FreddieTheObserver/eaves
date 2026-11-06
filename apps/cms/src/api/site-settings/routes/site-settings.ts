@@ -1,3 +1,3 @@
-import { factories } from '@strapi/strapi';
+import { createGatedRouter } from '../../../utils/create-gated-router';
 
-export default factories.createCoreRouter('api::site-settings.site-settings');
+export default createGatedRouter('api::site-settings.site-settings', 'single');
