@@ -1,0 +1,97 @@
+{
+  "projectCard": {
+    "cover": true,
+    "typology": true
+  },
+  "project": {
+    "cover": true,
+    "typology": true,
+    "services": true,
+    "credits": { "populate": { "teamMember": true } },
+    "seo": { "populate": ["shareImage"] },
+    "body": {
+      "on": {
+        "blocks.text": { "populate": "*" },
+        "blocks.image": { "populate": ["image"] },
+        "blocks.image-pair": { "populate": { "left": { "populate": ["image"] }, "right": { "populate": ["image"] } } },
+        "blocks.gallery": { "populate": { "items": { "populate": ["image"] } } },
+        "blocks.quote": { "populate": ["speaker"] },
+        "blocks.drawing": { "populate": ["image"] }
+      }
+    }
+  },
+  "service": {
+    "cover": true,
+    "spaces": true,
+    "scope": true,
+    "seo": { "populate": ["shareImage"] },
+    "body": {
+      "on": {
+        "blocks.text": { "populate": "*" },
+        "blocks.image": { "populate": ["image"] },
+        "blocks.image-pair": { "populate": { "left": { "populate": ["image"] }, "right": { "populate": ["image"] } } },
+        "blocks.gallery": { "populate": { "items": { "populate": ["image"] } } },
+        "blocks.quote": { "populate": ["speaker"] },
+        "blocks.drawing": { "populate": ["image"] }
+      }
+    }
+  },
+  "teamMember": {
+    "portrait": true
+  },
+  "articleCard": {
+    "cover": true,
+    "topic": true
+  },
+  "article": {
+    "cover": true,
+    "topic": true,
+    "byline": true,
+    "relatedProjects": { "populate": ["cover", "typology"] },
+    "seo": { "populate": ["shareImage"] },
+    "body": {
+      "on": {
+        "blocks.text": { "populate": "*" },
+        "blocks.image": { "populate": ["image"] },
+        "blocks.image-pair": { "populate": { "left": { "populate": ["image"] }, "right": { "populate": ["image"] } } },
+        "blocks.gallery": { "populate": { "items": { "populate": ["image"] } } },
+        "blocks.quote": { "populate": ["speaker"] },
+        "blocks.drawing": { "populate": ["image"] }
+      }
+    }
+  },
+  "page": {
+    "seo": { "populate": ["shareImage"] },
+    "body": {
+      "on": {
+        "blocks.text": { "populate": "*" },
+        "blocks.image": { "populate": ["image"] },
+        "blocks.image-pair": { "populate": { "left": { "populate": ["image"] }, "right": { "populate": ["image"] } } },
+        "blocks.gallery": { "populate": { "items": { "populate": ["image"] } } },
+        "blocks.quote": { "populate": ["speaker"] },
+        "blocks.drawing": { "populate": ["image"] }
+      }
+    }
+  },
+  "sectionsPage": {
+    "seo": { "populate": ["shareImage"] },
+    "sections": {
+      "on": {
+        "sections.statement": { "populate": ["image"] },
+        "sections.selected-projects": { "populate": { "projects": { "populate": ["cover", "typology"] } } },
+        "sections.services-overview": { "populate": "*" },
+        "sections.latest-articles": { "populate": "*" },
+        "sections.studio-introduction": { "populate": ["image"] },
+        "sections.team": { "populate": "*" },
+        "sections.figures": { "populate": ["items"] },
+        "sections.contact-prompt": { "populate": "*" }
+      }
+    }
+  },
+  "siteSettings": {
+    "socialLinks": true,
+    "headerNavigation": true,
+    "footerNavigation": true,
+    "defaultSeo": { "populate": ["shareImage"] }
+  }
+}

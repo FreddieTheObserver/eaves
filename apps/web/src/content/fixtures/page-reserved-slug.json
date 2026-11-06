@@ -1,0 +1,175 @@
+{
+  "data": [
+    {
+      "id": 5,
+      "documentId": "pageJournal",
+      "title": "Journal",
+      "slug": "journal",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "publishedAt": "2026-01-01T00:00:00.000Z",
+      "locale": "en",
+      "seo": null,
+      "body": [
+        {
+          "id": 10,
+          "body": [
+            {
+              "type": "heading",
+              "level": 2,
+              "children": [
+                {
+                  "text": "Material first",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Oak, lime plaster and ",
+                  "type": "text"
+                },
+                {
+                  "bold": true,
+                  "text": "woven cane",
+                  "type": "text"
+                },
+                {
+                  "text": " set the tone, ",
+                  "type": "text"
+                },
+                {
+                  "text": "softly",
+                  "type": "text",
+                  "italic": true
+                },
+                {
+                  "text": " and ",
+                  "type": "text"
+                },
+                {
+                  "text": "plainly",
+                  "type": "text",
+                  "underline": true
+                },
+                {
+                  "text": ", ",
+                  "type": "text"
+                },
+                {
+                  "text": "not loudly",
+                  "type": "text",
+                  "strikethrough": true
+                },
+                {
+                  "text": ". See ",
+                  "type": "text"
+                },
+                {
+                  "code": true,
+                  "text": "plan-a",
+                  "type": "text"
+                },
+                {
+                  "text": " or ",
+                  "type": "text"
+                },
+                {
+                  "url": "https://example.com/materials",
+                  "type": "link",
+                  "children": [
+                    {
+                      "text": "the palette",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "text": ".",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "text": "Oak joinery",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "text": "Lime plaster",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "format": "ordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "text": "Measure",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "text": "Draw",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "quote",
+              "children": [
+                {
+                  "text": "Rooms should breathe.",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "code",
+              "children": [
+                {
+                  "text": "plan-a",
+                  "type": "text"
+                }
+              ]
+            }
+          ],
+          "__component": "blocks.text"
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "pageSize": 25,
+      "pageCount": 1,
+      "total": 1
+    }
+  }
+}

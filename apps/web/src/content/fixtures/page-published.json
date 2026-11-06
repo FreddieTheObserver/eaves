@@ -1,0 +1,250 @@
+{
+  "data": [
+    {
+      "id": 2,
+      "documentId": "pagePrivacy",
+      "title": "Privacy",
+      "slug": "privacy",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "publishedAt": "2026-01-01T00:00:00.000Z",
+      "locale": "en",
+      "seo": {
+        "id": 8,
+        "metaTitle": "Linden House",
+        "metaDescription": "A fictional house by a fictional studio.",
+        "shareImage": {
+          "id": 1,
+          "documentId": "file-covered",
+          "name": "covered.png",
+          "alternativeText": "A sunlit living room with oak shelving",
+          "caption": null,
+          "focalPoint": null,
+          "width": 1200,
+          "height": 800,
+          "formats": {
+            "large": {
+              "ext": ".png",
+              "url": "/uploads/large_covered_0000000000.png",
+              "hash": "large_covered_0000000000",
+              "mime": "image/png",
+              "name": "large_covered.png",
+              "path": null,
+              "size": 0,
+              "width": 1000,
+              "height": 667,
+              "sizeInBytes": 0
+            },
+            "small": {
+              "ext": ".png",
+              "url": "/uploads/small_covered_0000000000.png",
+              "hash": "small_covered_0000000000",
+              "mime": "image/png",
+              "name": "small_covered.png",
+              "path": null,
+              "size": 0,
+              "width": 500,
+              "height": 333,
+              "sizeInBytes": 0
+            },
+            "medium": {
+              "ext": ".png",
+              "url": "/uploads/medium_covered_0000000000.png",
+              "hash": "medium_covered_0000000000",
+              "mime": "image/png",
+              "name": "medium_covered.png",
+              "path": null,
+              "size": 0,
+              "width": 750,
+              "height": 500,
+              "sizeInBytes": 0
+            },
+            "thumbnail": {
+              "ext": ".png",
+              "url": "/uploads/thumbnail_covered_0000000000.png",
+              "hash": "thumbnail_covered_0000000000",
+              "mime": "image/png",
+              "name": "thumbnail_covered.png",
+              "path": null,
+              "size": 0,
+              "width": 234,
+              "height": 156,
+              "sizeInBytes": 0
+            }
+          },
+          "hash": "covered_0000000000",
+          "ext": ".png",
+          "mime": "image/png",
+          "size": 0,
+          "url": "/uploads/covered_0000000000.png",
+          "previewUrl": null,
+          "provider": "local",
+          "provider_metadata": null,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z",
+          "publishedAt": "2026-01-01T00:00:00.000Z"
+        }
+      },
+      "body": [
+        {
+          "id": 8,
+          "body": [
+            {
+              "type": "heading",
+              "level": 2,
+              "children": [
+                {
+                  "text": "Material first",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Oak, lime plaster and ",
+                  "type": "text"
+                },
+                {
+                  "bold": true,
+                  "text": "woven cane",
+                  "type": "text"
+                },
+                {
+                  "text": " set the tone, ",
+                  "type": "text"
+                },
+                {
+                  "text": "softly",
+                  "type": "text",
+                  "italic": true
+                },
+                {
+                  "text": " and ",
+                  "type": "text"
+                },
+                {
+                  "text": "plainly",
+                  "type": "text",
+                  "underline": true
+                },
+                {
+                  "text": ", ",
+                  "type": "text"
+                },
+                {
+                  "text": "not loudly",
+                  "type": "text",
+                  "strikethrough": true
+                },
+                {
+                  "text": ". See ",
+                  "type": "text"
+                },
+                {
+                  "code": true,
+                  "text": "plan-a",
+                  "type": "text"
+                },
+                {
+                  "text": " or ",
+                  "type": "text"
+                },
+                {
+                  "url": "https://example.com/materials",
+                  "type": "link",
+                  "children": [
+                    {
+                      "text": "the palette",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "text": ".",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "text": "Oak joinery",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "text": "Lime plaster",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "format": "ordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "text": "Measure",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "text": "Draw",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "quote",
+              "children": [
+                {
+                  "text": "Rooms should breathe.",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "code",
+              "children": [
+                {
+                  "text": "plan-a",
+                  "type": "text"
+                }
+              ]
+            }
+          ],
+          "__component": "blocks.text"
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "pageSize": 25,
+      "pageCount": 1,
+      "total": 1
+    }
+  }
+}

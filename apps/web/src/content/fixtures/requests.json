@@ -1,0 +1,41 @@
+[
+  { "name": "project-list", "phase": "valid", "token": "read", "path": "/api/projects", "populate": "projectCard", "query": { "locale": "en", "sort": "year:desc", "pagination": { "page": 1, "pageSize": 25 } } },
+  { "name": "project-published", "phase": "valid", "token": "read", "path": "/api/projects", "populate": "project", "query": { "locale": "en", "filters": { "slug": { "$eq": "linden-house" } } } },
+  { "name": "service-list", "phase": "valid", "token": "read", "path": "/api/services", "populate": "service", "query": { "locale": "en", "sort": "order:asc" } },
+  { "name": "team-member-list", "phase": "valid", "token": "read", "path": "/api/team-members", "populate": "teamMember", "query": { "locale": "en", "sort": "order:asc" } },
+  { "name": "typology-list", "phase": "valid", "token": "read", "path": "/api/typologies", "query": { "locale": "en" } },
+  { "name": "topic-list", "phase": "valid", "token": "read", "path": "/api/topics", "query": { "locale": "en" } },
+  { "name": "article-list", "phase": "valid", "token": "read", "path": "/api/articles", "populate": "articleCard", "query": { "locale": "en", "sort": "publicationDate:desc", "pagination": { "page": 1, "pageSize": 12 } } },
+  { "name": "article-published", "phase": "valid", "token": "read", "path": "/api/articles", "populate": "article", "query": { "locale": "en", "filters": { "slug": { "$eq": "oak-and-light" } } } },
+  { "name": "page-published", "phase": "valid", "token": "read", "path": "/api/pages", "populate": "page", "query": { "locale": "en", "filters": { "slug": { "$eq": "privacy" } } } },
+  { "name": "home-page-published", "phase": "valid", "token": "read", "path": "/api/home-page", "populate": "sectionsPage", "query": { "locale": "en" } },
+  { "name": "studio-page-published", "phase": "valid", "token": "read", "path": "/api/studio-page", "populate": "sectionsPage", "query": { "locale": "en" } },
+  { "name": "site-settings-published", "phase": "valid", "token": "read", "path": "/api/site-settings", "populate": "siteSettings", "query": { "locale": "en" } },
+  { "name": "slug-history-lookup", "phase": "valid", "token": "read", "path": "/api/slug-histories", "query": { "filters": { "oldPath": { "$eq": "/projects/old-linden" } } } },
+  {
+    "name": "inquiry-created",
+    "phase": "valid",
+    "token": "inquiry",
+    "method": "POST",
+    "path": "/api/inquiries",
+    "body": { "data": { "name": "Visitor", "email": "visitor@example.com", "kind": "new_project", "message": "Hello", "consent": true } }
+  },
+
+  { "name": "project-draft", "phase": "drafts", "token": "draft", "path": "/api/projects/{projectDraft}", "populate": "project", "query": { "locale": "en", "status": "draft" } },
+  { "name": "service-draft", "phase": "drafts", "token": "draft", "path": "/api/services/{serviceDraft}", "populate": "service", "query": { "locale": "en", "status": "draft" } },
+  { "name": "team-member-draft", "phase": "drafts", "token": "draft", "path": "/api/team-members/{teamMemberDraft}", "populate": "teamMember", "query": { "locale": "en", "status": "draft" } },
+  { "name": "article-draft", "phase": "drafts", "token": "draft", "path": "/api/articles/{articleDraft}", "populate": "article", "query": { "locale": "en", "status": "draft" } },
+  { "name": "page-draft", "phase": "drafts", "token": "draft", "path": "/api/pages/{pageDraft}", "populate": "page", "query": { "locale": "en", "status": "draft" } },
+  { "name": "home-page-draft", "phase": "drafts", "token": "draft", "path": "/api/home-page", "populate": "sectionsPage", "query": { "locale": "en", "status": "draft" } },
+  { "name": "studio-page-draft", "phase": "drafts", "token": "draft", "path": "/api/studio-page", "populate": "sectionsPage", "query": { "locale": "en", "status": "draft" } },
+  { "name": "site-settings-draft", "phase": "drafts", "token": "draft", "path": "/api/site-settings", "populate": "siteSettings", "query": { "locale": "en", "status": "draft" } },
+
+  { "name": "project-without-relations", "phase": "violations", "token": "read", "path": "/api/projects", "populate": "project", "query": { "locale": "en", "filters": { "slug": { "$eq": "bare-house" } } } },
+  { "name": "project-cover-without-alt", "phase": "violations", "token": "read", "path": "/api/projects", "populate": "project", "query": { "locale": "en", "filters": { "slug": { "$eq": "silent-house" } } } },
+  { "name": "project-credit-unpublished-member", "phase": "violations", "token": "read", "path": "/api/projects", "populate": "project", "query": { "locale": "en", "filters": { "slug": { "$eq": "orphan-credit-house" } } } },
+  { "name": "article-without-relations", "phase": "violations", "token": "read", "path": "/api/articles", "populate": "article", "query": { "locale": "en", "filters": { "slug": { "$eq": "bare-article" } } } },
+  { "name": "article-unpublished-byline", "phase": "violations", "token": "read", "path": "/api/articles", "populate": "article", "query": { "locale": "en", "filters": { "slug": { "$eq": "second-byline" } } } },
+  { "name": "page-reserved-slug", "phase": "violations", "token": "read", "path": "/api/pages", "populate": "page", "query": { "locale": "en", "filters": { "slug": { "$eq": "journal" } } } },
+  { "name": "home-page-violations", "phase": "violations", "token": "read", "path": "/api/home-page", "populate": "sectionsPage", "query": { "locale": "en" } },
+  { "name": "studio-page-violations", "phase": "violations", "token": "read", "path": "/api/studio-page", "populate": "sectionsPage", "query": { "locale": "en" } }
+]

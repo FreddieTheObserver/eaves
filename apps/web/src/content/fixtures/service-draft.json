@@ -1,0 +1,30 @@
+{
+  "data": {
+    "id": 3,
+    "documentId": "serviceDraft",
+    "name": "Half-written service",
+    "slug": null,
+    "summary": null,
+    "order": 0,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "publishedAt": null,
+    "locale": "en",
+    "cover": null,
+    "spaces": [
+      {
+        "id": 9,
+        "text": "Houses"
+      }
+    ],
+    "scope": [
+      {
+        "id": 10,
+        "text": "Space planning"
+      }
+    ],
+    "seo": null,
+    "body": []
+  },
+  "meta": {}
+}

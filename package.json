@@ -11,6 +11,7 @@
     "typecheck": "pnpm --recursive --if-present run typecheck",
     "check:schema": "pnpm --filter @eaves/cms check:schema",
     "check:access": "pnpm --filter @eaves/cms check:access",
+    "record:fixtures": "pnpm --filter @eaves/cms record:fixtures",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
   },

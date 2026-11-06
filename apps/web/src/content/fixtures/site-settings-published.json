@@ -1,0 +1,118 @@
+{
+  "data": {
+    "id": 2,
+    "documentId": "siteSettings",
+    "contactEmail": "hello@example.com",
+    "contactLocation": "Bangkok, Thailand",
+    "demoNotice": "Eaves is a fictional studio and every image is AI-generated.",
+    "notFoundTitle": "Page not found",
+    "notFoundText": "The page you are looking for does not exist.",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "publishedAt": "2026-01-01T00:00:00.000Z",
+    "locale": "en",
+    "socialLinks": [
+      {
+        "id": 5,
+        "label": "Instagram",
+        "href": "https://example.com/eaves"
+      }
+    ],
+    "headerNavigation": [
+      {
+        "id": 6,
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "id": 7,
+        "label": "Journal",
+        "href": "/journal"
+      }
+    ],
+    "footerNavigation": [
+      {
+        "id": 8,
+        "label": "Privacy",
+        "href": "/privacy"
+      }
+    ],
+    "defaultSeo": {
+      "id": 14,
+      "metaTitle": "Linden House",
+      "metaDescription": "A fictional house by a fictional studio.",
+      "shareImage": {
+        "id": 1,
+        "documentId": "file-covered",
+        "name": "covered.png",
+        "alternativeText": "A sunlit living room with oak shelving",
+        "caption": null,
+        "focalPoint": null,
+        "width": 1200,
+        "height": 800,
+        "formats": {
+          "large": {
+            "ext": ".png",
+            "url": "/uploads/large_covered_0000000000.png",
+            "hash": "large_covered_0000000000",
+            "mime": "image/png",
+            "name": "large_covered.png",
+            "path": null,
+            "size": 0,
+            "width": 1000,
+            "height": 667,
+            "sizeInBytes": 0
+          },
+          "small": {
+            "ext": ".png",
+            "url": "/uploads/small_covered_0000000000.png",
+            "hash": "small_covered_0000000000",
+            "mime": "image/png",
+            "name": "small_covered.png",
+            "path": null,
+            "size": 0,
+            "width": 500,
+            "height": 333,
+            "sizeInBytes": 0
+          },
+          "medium": {
+            "ext": ".png",
+            "url": "/uploads/medium_covered_0000000000.png",
+            "hash": "medium_covered_0000000000",
+            "mime": "image/png",
+            "name": "medium_covered.png",
+            "path": null,
+            "size": 0,
+            "width": 750,
+            "height": 500,
+            "sizeInBytes": 0
+          },
+          "thumbnail": {
+            "ext": ".png",
+            "url": "/uploads/thumbnail_covered_0000000000.png",
+            "hash": "thumbnail_covered_0000000000",
+            "mime": "image/png",
+            "name": "thumbnail_covered.png",
+            "path": null,
+            "size": 0,
+            "width": 234,
+            "height": 156,
+            "sizeInBytes": 0
+          }
+        },
+        "hash": "covered_0000000000",
+        "ext": ".png",
+        "mime": "image/png",
+        "size": 0,
+        "url": "/uploads/covered_0000000000.png",
+        "previewUrl": null,
+        "provider": "local",
+        "provider_metadata": null,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z",
+        "publishedAt": "2026-01-01T00:00:00.000Z"
+      }
+    }
+  },
+  "meta": {}
+}

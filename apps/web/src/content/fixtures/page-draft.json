@@ -1,0 +1,15 @@
+{
+  "data": {
+    "id": 3,
+    "documentId": "pageDraft",
+    "title": "Half-written page",
+    "slug": null,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "publishedAt": null,
+    "locale": "en",
+    "seo": null,
+    "body": []
+  },
+  "meta": {}
+}

@@ -1,0 +1,126 @@
+{
+  "data": [
+    {
+      "id": 11,
+      "documentId": "projectSilent",
+      "title": "Silent House",
+      "slug": "silent-house",
+      "summary": "Silent House, a fictional project.",
+      "neighbourhood": "Ari",
+      "city": "Bangkok",
+      "year": 2024,
+      "floorArea": 180,
+      "stage": "completed",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "publishedAt": "2026-01-01T00:00:00.000Z",
+      "locale": "en",
+      "cover": {
+        "id": 3,
+        "documentId": "file-silent",
+        "name": "silent.png",
+        "alternativeText": null,
+        "caption": null,
+        "focalPoint": null,
+        "width": 1200,
+        "height": 800,
+        "formats": {
+          "large": {
+            "ext": ".png",
+            "url": "/uploads/large_silent_0000000000.png",
+            "hash": "large_silent_0000000000",
+            "mime": "image/png",
+            "name": "large_silent.png",
+            "path": null,
+            "size": 0,
+            "width": 1000,
+            "height": 667,
+            "sizeInBytes": 0
+          },
+          "small": {
+            "ext": ".png",
+            "url": "/uploads/small_silent_0000000000.png",
+            "hash": "small_silent_0000000000",
+            "mime": "image/png",
+            "name": "small_silent.png",
+            "path": null,
+            "size": 0,
+            "width": 500,
+            "height": 333,
+            "sizeInBytes": 0
+          },
+          "medium": {
+            "ext": ".png",
+            "url": "/uploads/medium_silent_0000000000.png",
+            "hash": "medium_silent_0000000000",
+            "mime": "image/png",
+            "name": "medium_silent.png",
+            "path": null,
+            "size": 0,
+            "width": 750,
+            "height": 500,
+            "sizeInBytes": 0
+          },
+          "thumbnail": {
+            "ext": ".png",
+            "url": "/uploads/thumbnail_silent_0000000000.png",
+            "hash": "thumbnail_silent_0000000000",
+            "mime": "image/png",
+            "name": "thumbnail_silent.png",
+            "path": null,
+            "size": 0,
+            "width": 234,
+            "height": 156,
+            "sizeInBytes": 0
+          }
+        },
+        "hash": "silent_0000000000",
+        "ext": ".png",
+        "mime": "image/png",
+        "size": 0,
+        "url": "/uploads/silent_0000000000.png",
+        "previewUrl": null,
+        "provider": "local",
+        "provider_metadata": null,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z",
+        "publishedAt": "2026-01-01T00:00:00.000Z"
+      },
+      "typology": {
+        "id": 1,
+        "documentId": "residential",
+        "name": "Residential",
+        "slug": "residential",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z",
+        "publishedAt": "2026-01-01T00:00:00.000Z",
+        "locale": "en"
+      },
+      "services": [
+        {
+          "id": 2,
+          "documentId": "serviceResidential",
+          "name": "Residential Interior Design",
+          "slug": "residential-interior-design",
+          "summary": "Interiors for houses and condominiums.",
+          "order": 1,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z",
+          "publishedAt": "2026-01-01T00:00:00.000Z",
+          "locale": "en"
+        }
+      ],
+      "credits": [],
+      "seo": null,
+      "body": []
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "pageSize": 25,
+      "pageCount": 1,
+      "total": 1
+    }
+  }
+}

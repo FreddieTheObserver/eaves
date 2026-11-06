@@ -1,0 +1,32 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "documentId": "residential",
+      "name": "Residential",
+      "slug": "residential",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "publishedAt": "2026-01-01T00:00:00.000Z",
+      "locale": "en"
+    },
+    {
+      "id": 2,
+      "documentId": "commercial",
+      "name": "Commercial",
+      "slug": "commercial",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "publishedAt": "2026-01-01T00:00:00.000Z",
+      "locale": "en"
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "pageSize": 25,
+      "pageCount": 1,
+      "total": 2
+    }
+  }
+}

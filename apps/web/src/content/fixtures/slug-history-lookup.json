@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "documentId": "slugHistory",
+      "oldPath": "/projects/old-linden",
+      "targetType": "project",
+      "targetDocumentId": "projectLinden",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "publishedAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "pageSize": 25,
+      "pageCount": 1,
+      "total": 1
+    }
+  }
+}

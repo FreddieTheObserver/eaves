@@ -1,0 +1,43 @@
+{
+  "data": {
+    "id": 1,
+    "documentId": "siteSettings",
+    "contactEmail": "hello@example.com",
+    "contactLocation": "Bangkok, Thailand",
+    "demoNotice": null,
+    "notFoundTitle": "Page not found",
+    "notFoundText": null,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "publishedAt": null,
+    "locale": "en",
+    "socialLinks": [
+      {
+        "id": 1,
+        "label": "Instagram",
+        "href": "https://example.com/eaves"
+      }
+    ],
+    "headerNavigation": [
+      {
+        "id": 2,
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "id": 3,
+        "label": "Journal",
+        "href": "/journal"
+      }
+    ],
+    "footerNavigation": [
+      {
+        "id": 4,
+        "label": "Privacy",
+        "href": "/privacy"
+      }
+    ],
+    "defaultSeo": null
+  },
+  "meta": {}
+}

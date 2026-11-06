@@ -1,0 +1,21 @@
+{
+  "data": {
+    "id": 3,
+    "documentId": "articleDraft",
+    "title": "Half-written article",
+    "slug": null,
+    "excerpt": null,
+    "publicationDate": null,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "publishedAt": null,
+    "locale": "en",
+    "cover": null,
+    "topic": null,
+    "byline": [],
+    "relatedProjects": [],
+    "seo": null,
+    "body": []
+  },
+  "meta": {}
+}

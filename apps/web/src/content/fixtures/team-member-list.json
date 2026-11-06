@@ -1,0 +1,178 @@
+{
+  "data": [
+    {
+      "id": 2,
+      "documentId": "designerOne",
+      "name": "Designer One",
+      "position": "Design Director",
+      "bio": "Leads the studio.",
+      "order": 1,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "publishedAt": "2026-01-01T00:00:00.000Z",
+      "locale": "en",
+      "portrait": {
+        "id": 2,
+        "documentId": "file-portrait",
+        "name": "portrait.png",
+        "alternativeText": "Head and shoulders of a designer in a linen shirt",
+        "caption": null,
+        "focalPoint": null,
+        "width": 1200,
+        "height": 800,
+        "formats": {
+          "large": {
+            "ext": ".png",
+            "url": "/uploads/large_portrait_0000000000.png",
+            "hash": "large_portrait_0000000000",
+            "mime": "image/png",
+            "name": "large_portrait.png",
+            "path": null,
+            "size": 0,
+            "width": 1000,
+            "height": 667,
+            "sizeInBytes": 0
+          },
+          "small": {
+            "ext": ".png",
+            "url": "/uploads/small_portrait_0000000000.png",
+            "hash": "small_portrait_0000000000",
+            "mime": "image/png",
+            "name": "small_portrait.png",
+            "path": null,
+            "size": 0,
+            "width": 500,
+            "height": 333,
+            "sizeInBytes": 0
+          },
+          "medium": {
+            "ext": ".png",
+            "url": "/uploads/medium_portrait_0000000000.png",
+            "hash": "medium_portrait_0000000000",
+            "mime": "image/png",
+            "name": "medium_portrait.png",
+            "path": null,
+            "size": 0,
+            "width": 750,
+            "height": 500,
+            "sizeInBytes": 0
+          },
+          "thumbnail": {
+            "ext": ".png",
+            "url": "/uploads/thumbnail_portrait_0000000000.png",
+            "hash": "thumbnail_portrait_0000000000",
+            "mime": "image/png",
+            "name": "thumbnail_portrait.png",
+            "path": null,
+            "size": 0,
+            "width": 234,
+            "height": 156,
+            "sizeInBytes": 0
+          }
+        },
+        "hash": "portrait_0000000000",
+        "ext": ".png",
+        "mime": "image/png",
+        "size": 0,
+        "url": "/uploads/portrait_0000000000.png",
+        "previewUrl": null,
+        "provider": "local",
+        "provider_metadata": null,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z",
+        "publishedAt": "2026-01-01T00:00:00.000Z"
+      }
+    },
+    {
+      "id": 4,
+      "documentId": "designerTwo",
+      "name": "Designer Two",
+      "position": "Interior Designer",
+      "bio": "Specifies materials.",
+      "order": 2,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "publishedAt": "2026-01-01T00:00:00.000Z",
+      "locale": "en",
+      "portrait": {
+        "id": 2,
+        "documentId": "file-portrait",
+        "name": "portrait.png",
+        "alternativeText": "Head and shoulders of a designer in a linen shirt",
+        "caption": null,
+        "focalPoint": null,
+        "width": 1200,
+        "height": 800,
+        "formats": {
+          "large": {
+            "ext": ".png",
+            "url": "/uploads/large_portrait_0000000000.png",
+            "hash": "large_portrait_0000000000",
+            "mime": "image/png",
+            "name": "large_portrait.png",
+            "path": null,
+            "size": 0,
+            "width": 1000,
+            "height": 667,
+            "sizeInBytes": 0
+          },
+          "small": {
+            "ext": ".png",
+            "url": "/uploads/small_portrait_0000000000.png",
+            "hash": "small_portrait_0000000000",
+            "mime": "image/png",
+            "name": "small_portrait.png",
+            "path": null,
+            "size": 0,
+            "width": 500,
+            "height": 333,
+            "sizeInBytes": 0
+          },
+          "medium": {
+            "ext": ".png",
+            "url": "/uploads/medium_portrait_0000000000.png",
+            "hash": "medium_portrait_0000000000",
+            "mime": "image/png",
+            "name": "medium_portrait.png",
+            "path": null,
+            "size": 0,
+            "width": 750,
+            "height": 500,
+            "sizeInBytes": 0
+          },
+          "thumbnail": {
+            "ext": ".png",
+            "url": "/uploads/thumbnail_portrait_0000000000.png",
+            "hash": "thumbnail_portrait_0000000000",
+            "mime": "image/png",
+            "name": "thumbnail_portrait.png",
+            "path": null,
+            "size": 0,
+            "width": 234,
+            "height": 156,
+            "sizeInBytes": 0
+          }
+        },
+        "hash": "portrait_0000000000",
+        "ext": ".png",
+        "mime": "image/png",
+        "size": 0,
+        "url": "/uploads/portrait_0000000000.png",
+        "previewUrl": null,
+        "provider": "local",
+        "provider_metadata": null,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z",
+        "publishedAt": "2026-01-01T00:00:00.000Z"
+      }
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "pageSize": 25,
+      "pageCount": 1,
+      "total": 2
+    }
+  }
+}

@@ -14,7 +14,8 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry",
     "typecheck": "tsc --noEmit",
     "check:schema": "node scripts/check-schema.js",
-    "check:access": "node scripts/check-access.js"
+    "check:access": "node scripts/check-access.js",
+    "record:fixtures": "node scripts/record-fixtures.js"
   },
   "dependencies": {
     "@strapi/database": "5.61.0",

@@ -1,0 +1,16 @@
+{
+  "data": {
+    "id": 6,
+    "documentId": "teamMemberDraft",
+    "name": "Half-written person",
+    "position": null,
+    "bio": null,
+    "order": 0,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "publishedAt": null,
+    "locale": "en",
+    "portrait": null
+  },
+  "meta": {}
+}
