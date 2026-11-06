@@ -9,6 +9,20 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: eaves
+          POSTGRES_PASSWORD: eaves_password
+          POSTGRES_DB: eaves
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U eaves"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -32,3 +46,21 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Check schema
+        run: pnpm check:schema
+        env:
+          DATABASE_CLIENT: postgres
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_NAME: eaves
+          DATABASE_USERNAME: eaves
+          DATABASE_PASSWORD: eaves_password
+          STRAPI_TELEMETRY_DISABLED: true
+          # Throwaway values for a database that lives only for this job.
+          APP_KEYS: ci-key-1,ci-key-2,ci-key-3,ci-key-4
+          ADMIN_JWT_SECRET: ci-admin-jwt-secret
+          API_TOKEN_SALT: ci-api-token-salt
+          TRANSFER_TOKEN_SALT: ci-transfer-token-salt
+          ENCRYPTION_KEY: ci-encryption-key
+          JWT_SECRET: ci-jwt-secret

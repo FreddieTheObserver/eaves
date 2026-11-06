@@ -31,6 +31,7 @@ The web app runs at http://localhost:3000.
 The Strapi admin runs at http://localhost:1337/admin.
 
 `pnpm lint`, `pnpm typecheck`, and `pnpm build` run the same checks as CI.
+`pnpm check:schema` does too, and needs Postgres running.
 
 ## Documentation
 
