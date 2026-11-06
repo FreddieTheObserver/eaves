@@ -489,7 +489,8 @@ flowchart LR
 - Playwright end-to-end tests run against the full Compose stack with seed content, and cover three flows: publishing updates the live page, Preview shows drafts, and the contact form creates an Inquiry.
 - Lighthouse CI enforces Core Web Vitals budgets on the key pages.
 - A schema check boots Strapi and compares the shared and per-language fields of every content type with section 7, because a missing language flag fails silently.
-- Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, and a Strapi build.
+- An access check boots Strapi on a throwaway database and tests the roles, the tokens, and the draft gate over real HTTP, because the gate registers and type-checks fine even when it lets every request through.
+- Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, and a Strapi build.
 
 ## 14. Seed content
 
