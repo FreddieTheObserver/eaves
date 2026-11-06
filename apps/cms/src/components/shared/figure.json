@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_shared_figures",
+  "info": {
+    "displayName": "Figure",
+    "icon": "picture"
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ],
+      "required": true
+    },
+    "alt": {
+      "type": "string",
+      "required": true
+    },
+    "caption": {
+      "type": "string"
+    }
+  }
+}

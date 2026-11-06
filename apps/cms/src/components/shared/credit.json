@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_shared_credits",
+  "info": {
+    "displayName": "Credit",
+    "icon": "user"
+  },
+  "options": {},
+  "attributes": {
+    "role": {
+      "type": "string",
+      "required": true
+    },
+    "teamMember": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::team-member.team-member"
+    }
+  }
+}

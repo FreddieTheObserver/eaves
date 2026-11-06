@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_sections_selected_projectss",
+  "info": {
+    "displayName": "Selected Projects",
+    "icon": "star"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "projects": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::project.project"
+    }
+  }
+}

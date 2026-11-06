@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_blocks_image_pairs",
+  "info": {
+    "displayName": "Image pair",
+    "icon": "apps"
+  },
+  "options": {},
+  "attributes": {
+    "left": {
+      "type": "component",
+      "component": "shared.figure",
+      "repeatable": false,
+      "required": true
+    },
+    "right": {
+      "type": "component",
+      "component": "shared.figure",
+      "repeatable": false,
+      "required": true
+    }
+  }
+}

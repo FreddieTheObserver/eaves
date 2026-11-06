@@ -184,7 +184,7 @@ erDiagram
         string location
         int year
         int floorArea
-        enum status
+        enum stage
     }
     SERVICE {
         string name
@@ -214,7 +214,7 @@ Blocks and Sections are parts inside a document rather than records of their own
 
 | Type | Kind | Fields |
 | --- | --- | --- |
-| Project | Collection | Title, slug, one-line summary, cover image, body of Blocks, Typology, one or more Services, location (neighbourhood and city), year, floor area in m², status (Completed, Under construction, Concept), Credits, SEO |
+| Project | Collection | Title, slug, one-line summary, cover image, body of Blocks, Typology, one or more Services, location (neighbourhood and city), year, floor area in m², stage (Completed, Under construction, Concept), Credits, SEO |
 | Service | Collection | Name, slug, one-line summary, cover image, Spaces, Scope, optional body of Blocks, order, SEO |
 | Typology | Collection | Name, slug |
 | Team Member | Collection | Name, Position, portrait, two or three sentence bio, order |
@@ -224,9 +224,11 @@ Blocks and Sections are parts inside a document rather than records of their own
 | Home page | Single | Sections, SEO |
 | Studio page | Single | Sections, SEO |
 | Site Settings | Single | Contact details, social links, header navigation, footer navigation, Demo Notice text, not-found text, default SEO text and share image |
-| Inquiry | Collection | Name, email, kind (New project, Press, Other), message, consent, received time |
-| Slug history | Collection | Old path, the document it now points to |
+| Inquiry | Collection | Name, email, kind (New project, Press, Other), message, consent; the received time is Strapi's own creation time |
+| Slug history | Collection | Old path, and the type and document ID of the document it now points to |
 
+The Project field is called stage rather than status, because Strapi reserves `status` on any type with Draft and Publish.
+Slug history stores the target as a type and a document ID rather than a relation, because the target can be a Project, Article, Service, or Page.
 A Service page lists its Projects automatically, from the Projects that name it.
 The Projects list is sorted by year, newest first.
 Projects have no client field, and Credits name only Team Members (ADR 0002).
@@ -280,7 +282,7 @@ Each field is marked now, because Strapi stores the choice with the field's defi
 
 | Per language | Shared across languages |
 | --- | --- |
-| Titles, names, slugs, summaries, excerpts, bodies, Spaces, Scope, Position, bios, Credits, location text, SEO text, Sections, Site Settings, and every link between entries (Typology, Services, Byline, Topic, related Projects) | Year, floor area, status, cover images and portraits, order, Publication date |
+| Titles, names, slugs, summaries, excerpts, bodies, Spaces, Scope, Position, bios, Credits, location text, SEO text, Sections, Site Settings, and every link between entries (Typology, Services, Byline, Topic, related Projects) | Year, floor area, stage, cover images and portraits, order, Publication date |
 
 Strapi localizes a component, a body of Blocks, or a list of Sections as a whole, so images inside a body belong to its language.
 For the same reason Credits, both who is credited and their role, are per language, and a translation copies the Credits and translates the roles.

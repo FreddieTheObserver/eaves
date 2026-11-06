@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_sections_contact_prompts",
+  "info": {
+    "displayName": "Contact prompt",
+    "icon": "envelope"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "text": {
+      "type": "text"
+    },
+    "linkLabel": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

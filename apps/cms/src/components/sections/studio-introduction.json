@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_sections_studio_introductions",
+  "info": {
+    "displayName": "Studio introduction",
+    "icon": "house"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "text": {
+      "type": "text",
+      "required": true
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "imageAlt": {
+      "type": "string"
+    },
+    "linkLabel": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

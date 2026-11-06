@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_sections_figuress",
+  "info": {
+    "displayName": "Figures",
+    "icon": "hashtag"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "items": {
+      "type": "component",
+      "component": "sections.figure-item",
+      "repeatable": true,
+      "required": true,
+      "min": 1,
+      "max": 6
+    }
+  }
+}

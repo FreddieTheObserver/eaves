@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_blocks_quotes",
+  "info": {
+    "displayName": "Quote",
+    "icon": "quote"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "text",
+      "required": true
+    },
+    "speaker": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::team-member.team-member"
+    }
+  }
+}

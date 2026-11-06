@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_sections_latest_articless",
+  "info": {
+    "displayName": "Latest Articles",
+    "icon": "bulletList"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

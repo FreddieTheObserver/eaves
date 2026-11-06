@@ -1,0 +1,35 @@
+{
+  "collectionName": "components_blocks_drawings",
+  "info": {
+    "displayName": "Drawing",
+    "icon": "pencil"
+  },
+  "options": {},
+  "attributes": {
+    "kind": {
+      "type": "enumeration",
+      "enum": [
+        "plan",
+        "section",
+        "elevation"
+      ],
+      "required": true
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ],
+      "required": true
+    },
+    "alt": {
+      "type": "string",
+      "required": true
+    },
+    "caption": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

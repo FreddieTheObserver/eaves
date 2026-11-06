@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_sections_services_overviews",
+  "info": {
+    "displayName": "Services overview",
+    "icon": "layout"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "intro": {
+      "type": "text"
+    }
+  }
+}

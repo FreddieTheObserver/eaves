@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "slug_histories",
+  "info": {
+    "singularName": "slug-history",
+    "pluralName": "slug-histories",
+    "displayName": "Slug history"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "oldPath": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "targetType": {
+      "type": "enumeration",
+      "enum": [
+        "project",
+        "article",
+        "service",
+        "page"
+      ],
+      "required": true
+    },
+    "targetDocumentId": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

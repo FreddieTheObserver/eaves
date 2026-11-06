@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_blocks_texts",
+  "info": {
+    "displayName": "Text",
+    "icon": "write"
+  },
+  "options": {},
+  "attributes": {
+    "body": {
+      "type": "blocks",
+      "required": true
+    }
+  }
+}
