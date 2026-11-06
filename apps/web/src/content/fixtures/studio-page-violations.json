@@ -84,83 +84,108 @@
     },
     "sections": [
       {
-        "id": 5,
-        "heading": "The studio",
-        "text": "An image with no alt text.",
-        "imageAlt": null,
-        "linkLabel": "About the studio",
-        "image": {
-          "id": 1,
-          "documentId": "file-covered",
-          "name": "covered.png",
-          "alternativeText": "A sunlit living room with oak shelving",
-          "caption": null,
-          "focalPoint": null,
-          "width": 1200,
-          "height": 800,
-          "formats": {
-            "large": {
+        "id": 7,
+        "heading": "Selected projects",
+        "projects": [
+          {
+            "id": 2,
+            "documentId": "projectLinden",
+            "title": "Linden House",
+            "slug": "linden-house",
+            "summary": "Linden House, a fictional project.",
+            "neighbourhood": "Ari",
+            "city": "Bangkok",
+            "year": 2025,
+            "floorArea": 220,
+            "stage": "completed",
+            "createdAt": "2026-01-01T00:00:00.000Z",
+            "updatedAt": "2026-01-01T00:00:00.000Z",
+            "publishedAt": "2026-01-01T00:00:00.000Z",
+            "locale": "en",
+            "cover": {
+              "id": 1,
+              "documentId": "file-covered",
+              "name": "covered.png",
+              "alternativeText": "A sunlit living room with oak shelving",
+              "caption": null,
+              "focalPoint": null,
+              "width": 1200,
+              "height": 800,
+              "formats": {
+                "large": {
+                  "ext": ".png",
+                  "url": "/uploads/large_covered_0000000000.png",
+                  "hash": "large_covered_0000000000",
+                  "mime": "image/png",
+                  "name": "large_covered.png",
+                  "path": null,
+                  "size": 0,
+                  "width": 1000,
+                  "height": 667,
+                  "sizeInBytes": 0
+                },
+                "small": {
+                  "ext": ".png",
+                  "url": "/uploads/small_covered_0000000000.png",
+                  "hash": "small_covered_0000000000",
+                  "mime": "image/png",
+                  "name": "small_covered.png",
+                  "path": null,
+                  "size": 0,
+                  "width": 500,
+                  "height": 333,
+                  "sizeInBytes": 0
+                },
+                "medium": {
+                  "ext": ".png",
+                  "url": "/uploads/medium_covered_0000000000.png",
+                  "hash": "medium_covered_0000000000",
+                  "mime": "image/png",
+                  "name": "medium_covered.png",
+                  "path": null,
+                  "size": 0,
+                  "width": 750,
+                  "height": 500,
+                  "sizeInBytes": 0
+                },
+                "thumbnail": {
+                  "ext": ".png",
+                  "url": "/uploads/thumbnail_covered_0000000000.png",
+                  "hash": "thumbnail_covered_0000000000",
+                  "mime": "image/png",
+                  "name": "thumbnail_covered.png",
+                  "path": null,
+                  "size": 0,
+                  "width": 234,
+                  "height": 156,
+                  "sizeInBytes": 0
+                }
+              },
+              "hash": "covered_0000000000",
               "ext": ".png",
-              "url": "/uploads/large_covered_0000000000.png",
-              "hash": "large_covered_0000000000",
               "mime": "image/png",
-              "name": "large_covered.png",
-              "path": null,
               "size": 0,
-              "width": 1000,
-              "height": 667,
-              "sizeInBytes": 0
+              "url": "/uploads/covered_0000000000.png",
+              "previewUrl": null,
+              "provider": "local",
+              "provider_metadata": null,
+              "createdAt": "2026-01-01T00:00:00.000Z",
+              "updatedAt": "2026-01-01T00:00:00.000Z",
+              "publishedAt": "2026-01-01T00:00:00.000Z"
             },
-            "small": {
-              "ext": ".png",
-              "url": "/uploads/small_covered_0000000000.png",
-              "hash": "small_covered_0000000000",
-              "mime": "image/png",
-              "name": "small_covered.png",
-              "path": null,
-              "size": 0,
-              "width": 500,
-              "height": 333,
-              "sizeInBytes": 0
-            },
-            "medium": {
-              "ext": ".png",
-              "url": "/uploads/medium_covered_0000000000.png",
-              "hash": "medium_covered_0000000000",
-              "mime": "image/png",
-              "name": "medium_covered.png",
-              "path": null,
-              "size": 0,
-              "width": 750,
-              "height": 500,
-              "sizeInBytes": 0
-            },
-            "thumbnail": {
-              "ext": ".png",
-              "url": "/uploads/thumbnail_covered_0000000000.png",
-              "hash": "thumbnail_covered_0000000000",
-              "mime": "image/png",
-              "name": "thumbnail_covered.png",
-              "path": null,
-              "size": 0,
-              "width": 234,
-              "height": 156,
-              "sizeInBytes": 0
+            "typology": {
+              "id": 1,
+              "documentId": "residential",
+              "name": "Residential",
+              "slug": "residential",
+              "createdAt": "2026-01-01T00:00:00.000Z",
+              "updatedAt": "2026-01-01T00:00:00.000Z",
+              "publishedAt": "2026-01-01T00:00:00.000Z",
+              "locale": "en"
             }
-          },
-          "hash": "covered_0000000000",
-          "ext": ".png",
-          "mime": "image/png",
-          "size": 0,
-          "url": "/uploads/covered_0000000000.png",
-          "previewUrl": null,
-          "provider": "local",
-          "provider_metadata": null,
-          "createdAt": "2026-01-01T00:00:00.000Z",
-          "updatedAt": "2026-01-01T00:00:00.000Z",
-          "publishedAt": "2026-01-01T00:00:00.000Z"
-        },
-        "__component": "sections.studio-introduction"
+          }
+        ],
+        "__component": "sections.selected-projects"
       }
     ]
   },

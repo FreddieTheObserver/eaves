@@ -1,17 +1,18 @@
 // Boots Strapi on a throwaway database, creates a small set of documents, and records the real REST
 // responses that apps/web/src/content validates its zod schemas against. It records three kinds of
 // document: valid ones, half-filled drafts, and published ones that break the rules Strapi cannot
-// enforce (required relations, alt text, Selected Projects count, reserved slugs). The last kind shows
-// that Strapi really accepts them. The requests come from apps/web/src/content/fixtures/requests.json
+// enforce (required relations, Selected Projects count, reserved slugs, and a cover whose alt text is
+// cleared in the Media Library after publishing). The last kind shows that Strapi really accepts them.
+// The CMS refuses to publish an image without alt text (src/publish-rules), so every document here is
+// saved as a draft and then published. The requests come from apps/web/src/content/fixtures/requests.json
 // and their populate specs from apps/web/src/content/populate.json.
 // Fixtures are committed snapshots, so run this by hand (pnpm record:fixtures) when a content type changes.
 // It creates its own database on the server named by the usual DATABASE_* variables and drops it afterwards.
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
-const zlib = require('zlib');
 const { Client } = require('pg');
 const { createStrapi, compileStrapi } = require('@strapi/strapi');
+const { removeFiles, uploadImage } = require('./lib/media');
 
 const appDir = path.resolve(__dirname, '..');
 const contentDir = path.resolve(appDir, '..', 'web', 'src', 'content');
@@ -34,25 +35,6 @@ const withMaintenanceDb = async (statement) => {
   } finally {
     await client.end();
   }
-};
-
-const png = (width, height, [r, g, b]) => {
-  const chunk = (type, data) => {
-    const body = Buffer.concat([Buffer.from(type), data]);
-    const frame = Buffer.alloc(4);
-    frame.writeUInt32BE(data.length);
-    const crc = Buffer.alloc(4);
-    crc.writeUInt32BE(zlib.crc32(body));
-    return Buffer.concat([frame, body, crc]);
-  };
-  const header = Buffer.alloc(13);
-  header.writeUInt32BE(width, 0);
-  header.writeUInt32BE(height, 4);
-  header.set([8, 2, 0, 0, 0], 8);
-  const row = Buffer.alloc(1 + width * 3);
-  for (let x = 0; x < width; x++) row.set([r, g, b], 1 + x * 3);
-  const pixels = zlib.deflateSync(Buffer.concat(Array(height).fill(row)));
-  return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', header), chunk('IDAT', pixels), chunk('IEND', Buffer.alloc(0))]);
 };
 
 const toQuery = (value, prefix = '') => {
@@ -113,6 +95,10 @@ const check = (label, ok, detail = '') => {
 };
 
 const run = async () => {
+  // Compiling can exit the process on a type error, so it comes before the database exists to leak.
+  process.chdir(appDir);
+  const appContext = await compileStrapi();
+
   await withMaintenanceDb(`CREATE DATABASE "${scratchName}"`);
 
   Object.assign(process.env, {
@@ -123,9 +109,8 @@ const run = async () => {
     PORT: '0',
     STRAPI_TELEMETRY_DISABLED: 'true',
   });
-  process.chdir(appDir);
 
-  const strapi = await createStrapi(await compileStrapi()).start();
+  const strapi = await createStrapi(appContext).start();
   strapi.log.level = 'error';
   const uploaded = [];
 
@@ -143,9 +128,10 @@ const run = async () => {
       const model = strapi.contentType(uidOf(name));
       const options = {};
       if (strapi.plugin('i18n').service('content-types').isLocalizedContentType(model)) options.locale = 'en';
-      if (model.options.draftAndPublish) options.status = draft ? 'draft' : 'published';
-      const document = await strapi.documents(uidOf(name)).create({ ...options, data });
+      const documents = strapi.documents(uidOf(name));
+      const document = await documents.create({ ...options, data });
       refs[alias] = document.documentId;
+      if (model.options.draftAndPublish && !draft) await documents.publish({ documentId: document.documentId, ...options });
       return document;
     };
     const revise = async (name, data, { publish = false } = {}) => {
@@ -156,25 +142,14 @@ const run = async () => {
     };
 
     const upload = async (key, color, alternativeText) => {
-      const filepath = path.join(os.tmpdir(), `eaves-fixture-${process.pid}-${key}.png`);
-      const buffer = png(1200, 800, color);
-      fs.writeFileSync(filepath, buffer);
-      try {
-        const fileInfo = { name: `${key}.png`, ...(alternativeText ? { alternativeText } : {}) };
-        const [file] = await strapi.plugin('upload').service('upload').upload({
-          data: { fileInfo },
-          files: { filepath, originalFilename: `${key}.png`, mimetype: 'image/png', size: buffer.length },
-        });
-        uploaded.push(file);
-        refs[`file-${key}`] = file.documentId;
-        return file.id;
-      } finally {
-        fs.rmSync(filepath, { force: true });
-      }
+      const file = await uploadImage(strapi, key, { color, alternativeText });
+      uploaded.push(file);
+      refs[`file-${key}`] = file.documentId;
+      return file;
     };
-    const covered = await upload('covered', [214, 200, 178], 'A sunlit living room with oak shelving');
-    const portrait = await upload('portrait', [120, 110, 100], 'Head and shoulders of a designer in a linen shirt');
-    const silent = await upload('silent', [90, 100, 110]);
+    const covered = (await upload('covered', [214, 200, 178], 'A sunlit living room with oak shelving')).id;
+    const portrait = (await upload('portrait', [120, 110, 100], 'Head and shoulders of a designer in a linen shirt')).id;
+    const silent = await upload('silent', [90, 100, 110], 'Temporary alt text');
     const figure = (caption) => ({ image: covered, alt: 'Oak stair rising past a lime plaster wall', ...(caption ? { caption } : {}) });
     const seo = { metaTitle: 'Linden House', metaDescription: 'A fictional house by a fictional studio.', shareImage: covered };
 
@@ -331,7 +306,10 @@ const run = async () => {
     await recordPhase('drafts');
 
     await create('projectBare', 'project', { title: 'Bare House', slug: 'bare-house', summary: 'No relations.', cover: covered, neighbourhood: 'Ari', city: 'Bangkok', year: 2022, floorArea: 90, stage: 'completed' });
-    await create('projectSilent', 'project', projectBase('Silent House', 'silent-house', { cover: silent }));
+    await create('projectSilent', 'project', projectBase('Silent House', 'silent-house', { cover: silent.id }));
+    // The publish rule checks a document when it is published, not when a file it uses is edited later.
+    // The Media Library edits through updateFileInfo, and an empty string is how it clears alt text.
+    await strapi.plugin('upload').service('upload').updateFileInfo(silent.id, { alternativeText: '' });
     await create('articleBare', 'article', { title: 'Bare article', slug: 'bare-article', excerpt: 'No relations.', cover: covered, publicationDate: '2026-02-01' });
     await create('articleSecondByline', 'article', {
       title: 'Second byline',
@@ -348,7 +326,7 @@ const run = async () => {
       'home-page',
       {
         sections: [
-          { __component: 'sections.statement', text: 'Statement with an image and no alt text.', image: covered },
+          { __component: 'sections.statement', text: 'A statement with no image.' },
           { __component: 'sections.selected-projects', heading: 'Selected projects', projects: [refs.projectLinden, refs.projectMill] },
         ],
         seo,
@@ -357,29 +335,24 @@ const run = async () => {
     );
     await revise(
       'studio-page',
-      { sections: [{ __component: 'sections.studio-introduction', heading: 'The studio', text: 'An image with no alt text.', image: covered, linkLabel: 'About the studio' }], seo },
+      { sections: [{ __component: 'sections.selected-projects', heading: 'Selected projects', projects: [refs.projectLinden] }], seo },
       { publish: true }
     );
     const violations = await recordPhase('violations');
 
     const first = (name) => violations[name].data[0];
     check('Strapi publishes a Project with no Typology and no Services', first('project-without-relations').typology == null && (first('project-without-relations').services || []).length === 0);
-    check('Strapi publishes a Project cover with no alternative text', first('project-cover-without-alt').cover.alternativeText == null);
+    check('A Media Library edit can clear the alt text of a published cover', !first('project-cover-without-alt').cover.alternativeText);
     check('Strapi publishes an Article with no Byline and no Topic', first('article-without-relations').topic == null && (first('article-without-relations').byline || []).length === 0);
     check('Strapi drops an unpublished Team Member from a published Byline', first('article-unpublished-byline').byline.length === 1, `got ${first('article-unpublished-byline').byline.length}`);
     const orphan = first('project-credit-unpublished-member').credits;
     check('Strapi keeps a Credit but drops its unpublished Team Member', orphan.length === 1 && orphan[0].teamMember == null, JSON.stringify(orphan));
     check('Strapi publishes a Page with a reserved slug', first('page-reserved-slug').slug === 'journal');
-    const selected = violations['home-page-violations'].data.sections.find((section) => section.__component === 'sections.selected-projects');
-    check('Strapi publishes Selected Projects with two Projects', selected && selected.projects.length === 2);
+    const selectedProjects = (page) => violations[page].data.sections.find((section) => section.__component === 'sections.selected-projects');
+    check('Strapi publishes Selected Projects with two Projects', selectedProjects('home-page-violations').projects.length === 2);
+    check('Strapi publishes Selected Projects with one Project on the Studio page', selectedProjects('studio-page-violations').projects.length === 1);
   } finally {
-    for (const file of uploaded) {
-      try {
-        await strapi.plugin('upload').service('upload').remove(file);
-      } catch (error) {
-        console.error(`Could not remove uploaded file ${file.name}:`, error.message);
-      }
-    }
+    await removeFiles(strapi, uploaded);
     await strapi.destroy();
   }
 };

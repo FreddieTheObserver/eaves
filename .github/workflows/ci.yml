@@ -70,3 +70,6 @@ jobs:
 
       - name: Check access
         run: pnpm check:access
+
+      - name: Check publish rules
+        run: pnpm check:publish

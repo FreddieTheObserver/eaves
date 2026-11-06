@@ -97,15 +97,12 @@ export const violations: Record<string, Violation> = {
   'home-page-violations': {
     strict: single(sectionsPageSchema),
     lenient: single(sectionsPageDraftSchema),
-    issues: [
-      ['data.sections.0.imageAlt', 'Alt text is required when an image is set'],
-      ['data.sections.1.projects', 'between three and six'],
-    ],
+    issues: [['data.sections.1.projects', 'between three and six']],
   },
   'studio-page-violations': {
     strict: single(sectionsPageSchema),
     lenient: single(sectionsPageDraftSchema),
-    issues: [['data.sections.0.imageAlt', 'Alt text is required when an image is set']],
+    issues: [['data.sections.0.projects', 'between three and six']],
   },
 };
 

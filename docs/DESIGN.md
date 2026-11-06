@@ -451,6 +451,9 @@ shadcn/ui provides behaviour, not the look.
 - A seed script loads the versioned seed content into an empty CMS.
 - A bootstrap step applies the Editor and Author permissions, empties the Public role, and creates the three API tokens.
 - A route policy on every read route refuses draft requests unless the token is the Draft token.
+- A publish rule refuses to publish a document whose cover, portrait, or Section image has no alt text.
+  It sits in the Document Service, so the Publish button, bulk publish, and publishing a new entry all reach it.
+  A create or update with status published skips that path, so it is refused too, and code saves a draft and then publishes it.
 
 ### Security
 
@@ -490,7 +493,8 @@ flowchart LR
 - Lighthouse CI enforces Core Web Vitals budgets on the key pages.
 - A schema check boots Strapi and compares the shared and per-language fields of every content type with section 7, because a missing language flag fails silently.
 - An access check boots Strapi on a throwaway database and tests the roles, the tokens, and the draft gate over real HTTP, because the gate registers and type-checks fine even when it lets every request through.
-- Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, and a Strapi build.
+- A publish-rules check boots Strapi on a throwaway database and presses Publish as a signed-in Super Admin over the admin's own HTTP routes, because the publish rule registers and type-checks fine even when the Publish button never reaches it.
+- Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, the publish-rules check, and a Strapi build.
 
 ## 14. Seed content
 

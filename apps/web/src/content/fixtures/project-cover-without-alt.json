@@ -19,7 +19,7 @@
         "id": 3,
         "documentId": "file-silent",
         "name": "silent.png",
-        "alternativeText": null,
+        "alternativeText": "",
         "caption": null,
         "focalPoint": null,
         "width": 1200,

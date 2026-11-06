@@ -21,7 +21,8 @@ Pages and components import the types from `types.ts` and never see a Strapi res
 ## Rules the Strapi schema cannot enforce
 
 The strict schemas enforce these when the web app reads published content.
-Nothing stops an Editor publishing a document that breaks one, so a failure shows up when the page is built.
+The CMS also refuses to publish a missing alt text (`apps/cms/src/publish-rules`), so an Editor is told while editing.
+Nothing stops an Editor publishing a document that breaks any other rule, so a failure shows up when the page is built.
 
 | Rule | Where |
 | --- | --- |
@@ -35,6 +36,9 @@ Nothing stops an Editor publishing a document that breaks one, so a failure show
 Strapi removes an unpublished document from a published relation without a word.
 A Credit keeps its place with a null Team Member, so the Project is refused.
 A Byline or Selected Projects loses the entry, so it is refused only when too few remain.
+
+The publish rule checks a document when it is published.
+Clearing the alt text of a file in the Media Library afterwards leaves the cover published without it, and the strict schema is what then refuses the page.
 
 ## Recording fixtures
 
