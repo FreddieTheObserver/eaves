@@ -21,7 +21,8 @@ Pages and components import the types from `types.ts` and never see a Strapi res
 ## Rules the Strapi schema cannot enforce
 
 The strict schemas enforce these when the web app reads published content.
-The CMS also refuses to publish a missing alt text (`apps/cms/src/publish-rules`), so an Editor is told while editing.
+The CMS also refuses to publish a missing alt text, and refuses to unpublish or delete a document that published pages depend on (`apps/cms/src/publish-rules`), so an Editor is told while editing.
+The rule behind both is that the CMS refuses what these strict schemas refuse.
 Nothing stops an Editor publishing a document that breaks any other rule, so a failure shows up when the page is built.
 
 | Rule | Where |

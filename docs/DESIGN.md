@@ -454,6 +454,14 @@ shadcn/ui provides behaviour, not the look.
 - A publish rule refuses to publish a document whose cover, portrait, or Section image has no alt text.
   It sits in the Document Service, so the Publish button, bulk publish, and publishing a new entry all reach it.
   A create or update with status published skips that path, so it is refused too, and code saves a draft and then publishes it.
+- A dependency rule refuses to unpublish or delete a document that published pages still depend on.
+  Strapi removes an unpublished or deleted document from the published relations that point at it, so the rule finds the published documents that would be left breaking a content rule of the web app.
+  A Team Member is protected while a published Project credits them, or while they are the only person in a published Article's Byline.
+  A Service is protected while it is the only Service of a published Project.
+  A Project is protected while removing it would leave a Selected Projects Section with fewer than three Projects.
+  A Typology or Topic is protected from deletion while a published Project or Article uses it.
+  A relation the web app does not require, such as a Quote speaker, a related Project, or one person among several in a Byline, does not block, so unpublishing it removes it from those pages without a word.
+  Bulk unpublish checks each document while the others are still published, so unpublishing two featured Projects together can pass a check that each would fail alone.
 
 ### Security
 
@@ -493,7 +501,7 @@ flowchart LR
 - Lighthouse CI enforces Core Web Vitals budgets on the key pages.
 - A schema check boots Strapi and compares the shared and per-language fields of every content type with section 7, because a missing language flag fails silently.
 - An access check boots Strapi on a throwaway database and tests the roles, the tokens, and the draft gate over real HTTP, because the gate registers and type-checks fine even when it lets every request through.
-- A publish-rules check boots Strapi on a throwaway database and presses Publish as a signed-in Super Admin over the admin's own HTTP routes, because the publish rule registers and type-checks fine even when the Publish button never reaches it.
+- A publish-rules check boots Strapi on a throwaway database and presses Publish, Unpublish, bulk unpublish, and Delete as a signed-in Super Admin over the admin's own HTTP routes, because the publish and dependency rules register and type-check fine even when the admin's buttons never reach them.
 - Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, the publish-rules check, and a Strapi build.
 
 ## 14. Seed content
