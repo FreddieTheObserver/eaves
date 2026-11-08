@@ -1,0 +1,4 @@
+{
+  "reservedPageSlugs": ["projects", "services", "journal", "studio", "contact", "api", "th"],
+  "selectedProjects": { "min": 3, "max": 6 }
+}

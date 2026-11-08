@@ -5,5 +5,5 @@ import type { Core } from '@strapi/strapi';
 export type PublishRule = {
   uids: string[];
   populate: (uid: string, strapi: Core.Strapi) => Record<string, unknown>;
-  problems: (uid: string, draft: Record<string, unknown>) => string[];
+  problems: (uid: string, draft: Record<string, unknown>, strapi: Core.Strapi) => string[] | Promise<string[]>;
 };

@@ -184,7 +184,7 @@ describe('Selected Projects', () => {
   const card = read(home, [...projectsPath, 0]);
   const withProjects = (count: number) => change(home, projectsPath, Array.from({ length: count }, () => structuredClone(card)));
   const withoutAlt = (fixture: ReturnType<typeof withProjects>) => change(fixture, [...projectsPath, 0, 'cover', 'alternativeText'], null);
-  const RULE = 'projects: Selected Projects needs between three and six Projects';
+  const RULE = 'projects: Selected Projects needs 3 to 6 Projects';
   const CARD_WITHOUT_ALT = ['Section[1] > Project card[0]', ['cover.alternativeText: Alternative text is required']];
 
   it.each([3, 4, 5, 6])('accepts %i Projects', (count) => {

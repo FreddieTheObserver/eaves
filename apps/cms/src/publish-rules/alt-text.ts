@@ -1,3 +1,4 @@
+import { SECTION_PAGES, everySection } from './sections';
 import type { PublishRule } from './types';
 
 // Covers and portraits have no alt field of their own, so their alt text is the media file's alternativeText.
@@ -8,7 +9,6 @@ const MEDIA_FIELDS: Record<string, { field: string; label: string }> = {
   'api::team-member.team-member': { field: 'portrait', label: 'portrait' },
 };
 
-const SECTION_PAGES = ['api::home-page.home-page', 'api::studio-page.studio-page'];
 const IMAGE_SECTIONS: Record<string, string> = {
   'sections.statement': 'Statement',
   'sections.studio-introduction': 'Studio introduction',
@@ -26,14 +26,7 @@ export const altTextRule: PublishRule = {
   populate: (uid, strapi) => {
     const media = MEDIA_FIELDS[uid];
     if (media) return { [media.field]: true };
-
-    // Strapi leaves out any component the populate does not name, which would shift the Section numbers
-    // in the message, so every component the dynamic zone allows is named.
-    const contentTypes = strapi.contentTypes as unknown as Record<string, { attributes: { sections?: { components?: string[] } } }>;
-    const components = contentTypes[uid].attributes.sections?.components ?? [];
-    return {
-      sections: { on: Object.fromEntries(components.map((component) => [component, component in IMAGE_SECTIONS ? { populate: ['image'] } : { populate: '*' }])) },
-    };
+    return everySection(strapi, uid, Object.fromEntries(Object.keys(IMAGE_SECTIONS).map((component) => [component, { populate: ['image'] }])));
   },
 
   problems: (uid, draft) => {

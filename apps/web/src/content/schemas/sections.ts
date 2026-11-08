@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import rules from '../rules.json';
 import type { Draft, Section, SectionsPage } from '../types';
 import { projectCardDraftSchema, projectCardSchema } from './project';
 import { draftSeo, list, maybeText, mediaFile, populated, requiredText, seo, toDraftImage, toImage } from './shared';
@@ -9,7 +10,8 @@ import { tolerantList } from './tolerance';
 const altWhenImage = (section: { image?: unknown; imageAlt?: string }) => !section.image || Boolean(section.imageAlt);
 const altRule = { error: 'Alt text is required when an image is set', path: ['imageAlt'] };
 
-const SELECTED_PROJECTS_MESSAGE = 'Selected Projects needs between three and six Projects';
+const { min, max } = rules.selectedProjects;
+const SELECTED_PROJECTS_MESSAGE = `Selected Projects needs ${min} to ${max} Projects`;
 
 const sectionWire = z.discriminatedUnion('__component', [
   z
@@ -18,8 +20,8 @@ const sectionWire = z.discriminatedUnion('__component', [
   z.object({
     __component: z.literal('sections.selected-projects'),
     heading: maybeText,
-    // Counted after broken cards are dropped, so the Section is dropped too when fewer than three remain.
-    projects: tolerantList('Project card', projectCardSchema).refine((cards) => cards.length >= 3 && cards.length <= 6, SELECTED_PROJECTS_MESSAGE),
+    // Counted after broken cards are dropped, so the Section is dropped too when too few remain.
+    projects: tolerantList('Project card', projectCardSchema).refine((cards) => cards.length >= min && cards.length <= max, SELECTED_PROJECTS_MESSAGE),
   }),
   z.object({ __component: z.literal('sections.services-overview'), heading: requiredText, intro: maybeText }),
   z.object({ __component: z.literal('sections.latest-articles'), heading: requiredText }),

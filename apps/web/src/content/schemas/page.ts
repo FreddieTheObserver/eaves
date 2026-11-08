@@ -3,13 +3,11 @@ import type { Draft, Page } from '../types';
 import { bodySchema, draftBodySchema } from './blocks';
 import { RESERVED_PAGE_SLUGS, draftSeo, maybeText, requiredText, seo } from './shared';
 
-const reserved: readonly string[] = RESERVED_PAGE_SLUGS;
-
 export const pageSchema = z
   .object({
     documentId: requiredText,
     locale: requiredText,
-    slug: requiredText.refine((slug) => !reserved.includes(slug.toLowerCase()), {
+    slug: requiredText.refine((slug) => !RESERVED_PAGE_SLUGS.includes(slug.toLowerCase()), {
       error: (issue) => `The slug "${String(issue.input)}" is reserved for a route (${RESERVED_PAGE_SLUGS.join(', ')})`,
     }),
     title: requiredText,

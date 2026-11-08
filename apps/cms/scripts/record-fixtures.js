@@ -2,10 +2,11 @@
 // responses that apps/web/src/content validates its zod schemas against. It records three kinds of
 // document: valid ones, half-filled drafts, and published ones that break the rules Strapi cannot
 // enforce (required relations, Selected Projects count, reserved slugs, and a cover whose alt text is
-// cleared in the Media Library after publishing). The last kind shows that Strapi really accepts them.
-// The CMS refuses to publish an image without alt text (src/publish-rules), so every document here is
-// saved as a draft and then published. The requests come from apps/web/src/content/fixtures/requests.json
-// and their populate specs from apps/web/src/content/populate.json.
+// cleared in the Media Library after publishing). The last kind shows what Strapi sends for such content.
+// The CMS refuses to publish those states (src/publish-rules), so every document here is saved as a draft
+// and published while valid, and the recorder then breaks its published row in the database, as a transfer,
+// a seed or a bug could. The requests come from apps/web/src/content/fixtures/requests.json and their
+// populate specs from apps/web/src/content/populate.json.
 // Fixtures are committed snapshots, so run this by hand (pnpm record:fixtures) when a content type changes.
 // It creates its own database on the server named by the usual DATABASE_* variables and drops it afterwards.
 const fs = require('fs');
@@ -139,6 +140,24 @@ const run = async () => {
       const [current] = await documents.findMany({ locale: 'en', status: 'draft' });
       await documents.update({ documentId: current.documentId, locale: 'en', data });
       if (publish) await documents.publish({ documentId: current.documentId, locale: 'en' });
+    };
+
+    // A later publish copies the draft over the published row, so a document is broken after its last publish.
+    const publishedRow = (name, alias, populate) =>
+      strapi.db.query(uidOf(name)).findOne({ where: { documentId: refs[alias], publishedAt: { $notNull: true } }, populate });
+    const breakPublished = async (name, alias, data) => {
+      const row = await publishedRow(name, alias);
+      await strapi.db.query(uidOf(name)).update({ where: { id: row.id }, data });
+    };
+    const clearCreditMember = async (alias) => {
+      const row = await publishedRow('project', alias, { credits: true });
+      await strapi.db.query('shared.credit').update({ where: { id: row.credits[0].id }, data: { teamMember: null } });
+    };
+    const keepSelectedProjects = async (name, alias, count) => {
+      const row = await publishedRow(name, alias, { sections: true });
+      const { id } = row.sections.find((section) => section.__component === 'sections.selected-projects');
+      const section = await strapi.db.query('sections.selected-projects').findOne({ where: { id }, populate: { projects: true } });
+      await strapi.db.query('sections.selected-projects').update({ where: { id }, data: { projects: section.projects.slice(0, count).map((project) => project.id) } });
     };
 
     const upload = async (key, color, alternativeText) => {
@@ -305,12 +324,14 @@ const run = async () => {
     await revise('site-settings', { demoNotice: null, notFoundText: null, defaultSeo: null });
     await recordPhase('drafts');
 
-    await create('projectBare', 'project', { title: 'Bare House', slug: 'bare-house', summary: 'No relations.', cover: covered, neighbourhood: 'Ari', city: 'Bangkok', year: 2022, floorArea: 90, stage: 'completed' });
+    await create('projectBare', 'project', projectBase('Bare House', 'bare-house', { summary: 'No relations.', year: 2022, floorArea: 90 }));
+    await breakPublished('project', 'projectBare', { typology: null, services: [] });
     await create('projectSilent', 'project', projectBase('Silent House', 'silent-house', { cover: silent.id }));
     // The publish rule checks a document when it is published, not when a file it uses is edited later.
     // The Media Library edits through updateFileInfo, and an empty string is how it clears alt text.
     await strapi.plugin('upload').service('upload').updateFileInfo(silent.id, { alternativeText: '' });
-    await create('articleBare', 'article', { title: 'Bare article', slug: 'bare-article', excerpt: 'No relations.', cover: covered, publicationDate: '2026-02-01' });
+    await create('articleBare', 'article', { title: 'Bare article', slug: 'bare-article', excerpt: 'No relations.', cover: covered, publicationDate: '2026-02-01', topic: refs.material, byline: [refs.designerOne] });
+    await breakPublished('article', 'articleBare', { topic: null, byline: [] });
     await create('articleSecondByline', 'article', {
       title: 'Second byline',
       slug: 'second-byline',
@@ -320,37 +341,42 @@ const run = async () => {
       topic: refs.process,
       publicationDate: '2026-02-15',
     });
-    await create('projectOrphanCredit', 'project', projectBase('Orphan Credit House', 'orphan-credit-house', { credits: [{ role: 'Lead designer', teamMember: refs.designerDraft }] }));
-    await create('pageJournal', 'page', { title: 'Journal', slug: 'journal', body: [{ __component: 'blocks.text', body: richText }] });
+    // Strapi keeps a Credit whose Team Member has no published version, with the Team Member left out.
+    await create('projectOrphanCredit', 'project', projectBase('Orphan Credit House', 'orphan-credit-house', { credits: [{ role: 'Lead designer', teamMember: refs.designerOne }] }));
+    await clearCreditMember('projectOrphanCredit');
+    await create('pageJournal', 'page', { title: 'Journal', slug: 'journal-page', body: [{ __component: 'blocks.text', body: richText }] });
+    await strapi.db.query(uidOf('page')).updateMany({ where: { documentId: refs.pageJournal }, data: { slug: 'journal' } });
     await revise(
       'home-page',
       {
         sections: [
           { __component: 'sections.statement', text: 'A statement with no image.' },
-          { __component: 'sections.selected-projects', heading: 'Selected projects', projects: [refs.projectLinden, refs.projectMill] },
+          { __component: 'sections.selected-projects', heading: 'Selected projects', projects: [refs.projectLinden, refs.projectMill, refs.projectRiver] },
         ],
         seo,
       },
       { publish: true }
     );
+    await keepSelectedProjects('home-page', 'homePage', 2);
     await revise(
       'studio-page',
-      { sections: [{ __component: 'sections.selected-projects', heading: 'Selected projects', projects: [refs.projectLinden] }], seo },
+      { sections: [{ __component: 'sections.selected-projects', heading: 'Selected projects', projects: [refs.projectLinden, refs.projectMill, refs.projectRiver] }], seo },
       { publish: true }
     );
+    await keepSelectedProjects('studio-page', 'studioPage', 1);
     const violations = await recordPhase('violations');
 
     const first = (name) => violations[name].data[0];
-    check('Strapi publishes a Project with no Typology and no Services', first('project-without-relations').typology == null && (first('project-without-relations').services || []).length === 0);
+    check('The published Project has no Typology and no Services', first('project-without-relations').typology == null && (first('project-without-relations').services || []).length === 0);
     check('A Media Library edit can clear the alt text of a published cover', !first('project-cover-without-alt').cover.alternativeText);
-    check('Strapi publishes an Article with no Byline and no Topic', first('article-without-relations').topic == null && (first('article-without-relations').byline || []).length === 0);
+    check('The published Article has no Byline and no Topic', first('article-without-relations').topic == null && (first('article-without-relations').byline || []).length === 0);
     check('Strapi drops an unpublished Team Member from a published Byline', first('article-unpublished-byline').byline.length === 1, `got ${first('article-unpublished-byline').byline.length}`);
     const orphan = first('project-credit-unpublished-member').credits;
-    check('Strapi keeps a Credit but drops its unpublished Team Member', orphan.length === 1 && orphan[0].teamMember == null, JSON.stringify(orphan));
-    check('Strapi publishes a Page with a reserved slug', first('page-reserved-slug').slug === 'journal');
+    check('The published Credit has no Team Member', orphan.length === 1 && orphan[0].teamMember == null, JSON.stringify(orphan));
+    check('The published Page has a reserved slug', first('page-reserved-slug').slug === 'journal');
     const selectedProjects = (page) => violations[page].data.sections.find((section) => section.__component === 'sections.selected-projects');
-    check('Strapi publishes Selected Projects with two Projects', selectedProjects('home-page-violations').projects.length === 2);
-    check('Strapi publishes Selected Projects with one Project on the Studio page', selectedProjects('studio-page-violations').projects.length === 1);
+    check('The published Selected Projects has two Projects', selectedProjects('home-page-violations').projects.length === 2);
+    check('The published Selected Projects on the Studio page has one Project', selectedProjects('studio-page-violations').projects.length === 1);
   } finally {
     await removeFiles(strapi, uploaded);
     await strapi.destroy();

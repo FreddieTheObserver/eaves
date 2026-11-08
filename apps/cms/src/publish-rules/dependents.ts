@@ -1,4 +1,6 @@
 import type { Core } from '@strapi/strapi';
+import { SELECTED_PROJECTS } from './content-rules';
+import { documentIds, named, publishedWhere, type Doc, type Locale } from './published';
 
 // The CMS refuses what the web app's schemas refuse.
 // Strapi removes an unpublished or deleted document from the published relations that point at it, so these
@@ -6,29 +8,10 @@ import type { Core } from '@strapi/strapi';
 // A relation the web app does not require is left out on purpose: a Quote speaker, a related Project, and a
 // Byline person who is not the last one just disappear from the published pages that show them.
 
-export type Locale = string | string[] | undefined;
-type Doc = Record<string, unknown>;
 type Dependency = (strapi: Core.Strapi, id: string, locale: Locale) => Promise<string[]>;
-
-// Mirrors the Selected Projects rule in apps/web/src/content/schemas/sections.ts.
-const SELECTED_PROJECTS_MIN = 3;
-const PAGE_SIZE = 25;
 
 const PROJECT = 'api::project.project';
 const ARTICLE = 'api::article.article';
-
-const named = (doc: Doc) => `"${String(doc.title ?? doc.name ?? doc.documentId)}"`;
-const documentIds = (value: unknown) => (Array.isArray(value) ? value.map((item) => (item as Doc).documentId) : []);
-
-// A page of results is not all of them, so a "last person" check would miss a holder past the first page.
-const publishedWhere = async (strapi: Core.Strapi, uid: string, query: Doc): Promise<Doc[]> => {
-  const found: Doc[] = [];
-  for (let start = 0; ; start += PAGE_SIZE) {
-    const page = (await strapi.documents(uid as never).findMany({ ...query, status: 'published', sort: 'id:asc', start, limit: PAGE_SIZE } as never)) as Doc[];
-    found.push(...page);
-    if (page.length < PAGE_SIZE) return found;
-  }
-};
 
 const creditedProjects: Dependency = async (strapi, id, locale) =>
   (await publishedWhere(strapi, PROJECT, { locale, fields: ['title'], filters: { credits: { teamMember: { documentId: id } } } })).map(
@@ -71,8 +54,8 @@ const selectedProjectsLeftTooShort: Dependency = async (strapi, id, locale) => {
       for (const section of Array.isArray(page.sections) ? (page.sections as Doc[]) : []) {
         if (section.__component !== 'sections.selected-projects') continue;
         const chosen = documentIds(section.projects);
-        if (chosen.includes(id) && chosen.length - 1 < SELECTED_PROJECTS_MIN) {
-          problems.push(`Selected Projects on ${label} would have ${chosen.length - 1} Projects, and it needs at least ${SELECTED_PROJECTS_MIN}.`);
+        if (chosen.includes(id) && chosen.length - 1 < SELECTED_PROJECTS.min) {
+          problems.push(`Selected Projects on ${label} would have ${chosen.length - 1} Projects, and it needs at least ${SELECTED_PROJECTS.min}.`);
         }
       }
     }

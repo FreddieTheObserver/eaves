@@ -1,16 +1,20 @@
 // Boots Strapi on a throwaway database and checks the publish rules (src/publish-rules): a document whose
-// cover, portrait or Section image has no alt text cannot be published, and a document that published pages
-// still depend on cannot be unpublished or deleted. It tests the Document Service and
-// then the admin's own HTTP routes as a signed-in Super Admin, because a middleware registers and type-checks
-// fine even when the admin's Publish button never reaches it.
+// cover, portrait or Section image has no alt text cannot be published, nor can a Project or Article whose
+// required relations reach no published document, a Selected Projects Section outside the web app's bounds,
+// or a Page with a reserved slug. A document that published pages still depend on cannot be unpublished or
+// deleted. It tests the Document Service and then the admin's own HTTP routes as a signed-in Super Admin,
+// because a middleware registers and type-checks fine even when the admin's Publish button never reaches it.
+// The bounds and reserved slugs come from apps/web/src/content/rules.json, so the CMS cannot drift from them.
 // It creates its own database on the server named by the usual DATABASE_* variables and drops it afterwards,
 // so it never touches the development database.
+const fs = require('fs');
 const path = require('path');
 const { Client } = require('pg');
 const { createStrapi, compileStrapi } = require('@strapi/strapi');
 const { removeFiles, uploadImage } = require('./lib/media');
 
 const appDir = path.resolve(__dirname, '..');
+const webRules = JSON.parse(fs.readFileSync(path.resolve(appDir, '..', 'web', 'src', 'content', 'rules.json'), 'utf8'));
 const scratchName = `eaves_publish_${process.pid}_${Date.now()}`;
 
 const server = {
@@ -78,22 +82,34 @@ const run = async () => {
     await setAlt(described, 'A pale timber stair in a double-height hall');
     const image = await upload('image');
 
+    // Every document gets valid relations by default, so each check is refused for its own reason only.
+    const defaults = {
+      typology: (await documents('typology').create({ locale: 'en', data: { name: 'Base typology', slug: 'base-typology' } })).documentId,
+      topic: (await documents('topic').create({ locale: 'en', data: { name: 'Base topic', slug: 'base-topic' } })).documentId,
+    };
     let counter = 0;
     const dataFor = (name, mediaId) => {
       const n = ++counter;
       switch (name) {
         case 'project':
-          return { title: `Project ${n}`, slug: `project-${n}`, summary: 'A summary.', cover: mediaId, neighbourhood: 'Ari', city: 'Bangkok', year: 2024, floorArea: 100, stage: 'completed' };
+          return { title: `Project ${n}`, slug: `project-${n}`, summary: 'A summary.', cover: mediaId, neighbourhood: 'Ari', city: 'Bangkok', year: 2024, floorArea: 100, stage: 'completed', typology: defaults.typology, services: [defaults.service] };
         case 'service':
           return { name: `Service ${n}`, slug: `service-${n}`, summary: 'A summary.', cover: mediaId, spaces: [{ text: 'Houses' }], scope: [{ text: 'Space planning' }], order: n };
         case 'article':
-          return { title: `Article ${n}`, slug: `article-${n}`, excerpt: 'An excerpt.', cover: mediaId, publicationDate: '2026-01-01' };
+          return { title: `Article ${n}`, slug: `article-${n}`, excerpt: 'An excerpt.', cover: mediaId, publicationDate: '2026-01-01', topic: defaults.topic, byline: [defaults.person] };
         case 'team-member':
           return { name: `Person ${n}`, position: 'Designer', bio: 'A bio.', portrait: mediaId, order: n };
         default:
           throw new Error(`no data for ${name}`);
       }
     };
+
+    const draftOf = async (name, data) => (await documents(name).create({ locale: 'en', data })).documentId;
+    const publishOf = (name, documentId) => documents(name).publish({ documentId, locale: 'en' });
+    defaults.service = await draftOf('service', dataFor('service', described));
+    await publishOf('service', defaults.service);
+    defaults.person = await draftOf('team-member', dataFor('team-member', described));
+    await publishOf('team-member', defaults.person);
 
     const isPublished = async (name, documentId) => Boolean(await documents(name).findOne({ documentId, locale: 'en', status: 'published' }));
     const isDraft = async (name, documentId) => Boolean(await documents(name).findOne({ documentId, locale: 'en', status: 'draft' }));
@@ -136,8 +152,12 @@ const run = async () => {
     await refused('project: create with status published is refused', documents('project').create({ locale: 'en', status: 'published', data: dataFor('project', described) }), 'as a draft, then publish');
     await refused('project: update with status published is refused', documents('project').update({ documentId: shared.documentId, locale: 'en', status: 'published', data: { title: 'Renamed' } }), 'as a draft, then publish');
     check('project: neither of those left a published copy behind', (await documents('project').findMany({ locale: 'en', status: 'published', filters: { title: 'Renamed' } })).length === 0);
-    const pagePublished = await documents('page').create({ locale: 'en', status: 'published', data: { title: 'Privacy', slug: 'privacy' } });
-    check('page: types without a rule still create with status published', await isPublished('page', pagePublished.documentId));
+    const settings = await documents('site-settings').create({
+      locale: 'en',
+      status: 'published',
+      data: { contactEmail: 'hello@example.com', demoNotice: 'A demo.', notFoundTitle: 'Not found', notFoundText: 'Nothing here.', defaultSeo: { metaTitle: 'Eaves' } },
+    });
+    check('site settings: types without a rule still create with status published', await isPublished('site-settings', settings.documentId));
 
     for (const name of ['home-page', 'studio-page']) {
       const section = (component, extra) => ({ __component: component, ...extra });
@@ -159,6 +179,92 @@ const run = async () => {
       await publish();
       check(`${name}: Sections with no image, or with alt text, publish`, await isPublished(name, home.documentId));
     }
+
+    // A required relation must reach a published document, because Strapi leaves the others out of the published
+    // page. Each refusal is checked for its exact reasons, so a second reason cannot hide behind the expected one.
+    const refusedFor = async (label, promise, expected) => {
+      const error = await refusal(promise);
+      const reasons = error && error.details && error.details.errors;
+      check(label, Boolean(error) && error.name === 'ValidationError' && JSON.stringify(reasons) === JSON.stringify(expected), error ? JSON.stringify(reasons || error.message) : 'it went through');
+    };
+    const publishes = async (label, name, documentId) => {
+      const error = await refusal(publishOf(name, documentId));
+      check(label, !error && (await isPublished(name, documentId)), error ? error.message : 'not published');
+    };
+
+    const bareProject = await draftOf('project', { ...dataFor('project', described), typology: null, services: [] });
+    await refusedFor('project: no Typology and no Service is refused', publishOf('project', bareProject), ['Choose a Typology.', 'Choose at least one Service.']);
+    check('project: the refused Project stays a draft', !(await isPublished('project', bareProject)) && (await isDraft('project', bareProject)));
+
+    const waitingService = await draftOf('service', { ...dataFor('service', described), name: 'Waiting service' });
+    const servedProject = await draftOf('project', { ...dataFor('project', described), services: [waitingService] });
+    await refusedFor('project: a Service that is only a draft does not count', publishOf('project', servedProject), [
+      'None of its Services is published yet ("Waiting service"). Publish one of them first.',
+    ]);
+    await documents('project').update({ documentId: servedProject, locale: 'en', data: { services: [waitingService, defaults.service] } });
+    await publishes('project: a draft Service next to a published one is allowed', 'project', servedProject);
+
+    const waitingPerson = await draftOf('team-member', { ...dataFor('team-member', described), name: 'Waiting person' });
+    const creditedProject = await draftOf('project', {
+      ...dataFor('project', described),
+      credits: [{ role: 'Lead designer', teamMember: defaults.person }, { role: 'Stylist' }, { role: 'Joiner', teamMember: waitingPerson }],
+    });
+    await refusedFor('credits: a Credit with no Team Member, or one who is only a draft, is refused', publishOf('project', creditedProject), [
+      'Credit 2 (Stylist) names no Team Member.',
+      'Credit 3 (Joiner) names "Waiting person", who is not published yet. Publish them first.',
+    ]);
+    await documents('project').update({ documentId: creditedProject, locale: 'en', data: { credits: [{ role: 'Lead designer', teamMember: defaults.person }] } });
+    await publishes('credits: a Credit naming a published Team Member is allowed', 'project', creditedProject);
+
+    const bareArticle = await draftOf('article', { ...dataFor('article', described), topic: null, byline: [] });
+    await refusedFor('article: no Topic and no Byline is refused', publishOf('article', bareArticle), ['Choose a Topic.', 'Add at least one Team Member to the Byline.']);
+    const waitingByline = await draftOf('article', { ...dataFor('article', described), byline: [waitingPerson] });
+    await refusedFor('byline: a Byline of people who are only drafts is refused', publishOf('article', waitingByline), [
+      'Nobody in the Byline is published yet ("Waiting person"). Publish one of them first.',
+    ]);
+    await documents('article').update({ documentId: waitingByline, locale: 'en', data: { byline: [waitingPerson, defaults.person] } });
+    await publishes('byline: a draft person next to a published one is allowed', 'article', waitingByline);
+
+    // Selected Projects counts only published Projects, within the bounds the web app reads from rules.json.
+    const { min, max } = webRules.selectedProjects;
+    const showcase = [];
+    for (let i = 0; i <= max; i++) {
+      const id = await draftOf('project', dataFor('project', described));
+      await publishOf('project', id);
+      showcase.push(id);
+    }
+    const waitingProject = await draftOf('project', { ...dataFor('project', described), title: 'Waiting project' });
+    const countMessage = (count) => `Section 2 (Selected Projects) has ${count} published Projects, and it needs ${min} to ${max}.`;
+    for (const name of ['home-page', 'studio-page']) {
+      const page = await documents(name).findFirst({ locale: 'en', status: 'draft' });
+      const choose = (projects) =>
+        documents(name).update({
+          documentId: page.documentId,
+          locale: 'en',
+          data: { sections: [{ __component: 'sections.contact-prompt', heading: 'Talk', linkLabel: 'Contact' }, { __component: 'sections.selected-projects', heading: 'Selected', projects }] },
+        });
+      await choose(showcase.slice(0, min - 1));
+      await refusedFor(`${name}: ${min - 1} Selected Projects is refused`, publishOf(name, page.documentId), [countMessage(min - 1)]);
+      await choose([...showcase.slice(0, min - 1), waitingProject]);
+      await refusedFor(`${name}: a Selected Project that is only a draft does not count`, publishOf(name, page.documentId), [
+        `${countMessage(min - 1)} Not published yet: "Waiting project".`,
+      ]);
+      await choose(showcase.slice(0, max + 1));
+      await refusedFor(`${name}: ${max + 1} Selected Projects is refused`, publishOf(name, page.documentId), [countMessage(max + 1)]);
+      await choose(showcase.slice(0, min));
+      await publishes(`${name}: ${min} Selected Projects publishes`, name, page.documentId);
+      await choose(showcase.slice(0, max));
+      await publishes(`${name}: ${max} Selected Projects publishes`, name, page.documentId);
+    }
+
+    const reservedMessage = (slug) => `The slug "${slug}" is reserved for a route (${webRules.reservedPageSlugs.join(', ')}). Choose another.`;
+    for (const slug of webRules.reservedPageSlugs) {
+      const page = await draftOf('page', { title: `Page ${slug}`, slug });
+      await refusedFor(`page: the reserved slug ${slug} is refused`, publishOf('page', page), [reservedMessage(slug)]);
+    }
+    const shouting = await draftOf('page', { title: 'Shouting', slug: 'JOURNAL' });
+    await refusedFor('page: a reserved slug is refused whatever its case', publishOf('page', shouting), [reservedMessage('JOURNAL')]);
+    await publishes('page: a slug that only starts like a reserved one publishes', 'page', await draftOf('page', { title: 'Journal archive', slug: 'journal-archive' }));
 
     // The admin's Publish button, bulk publish, and publishing a brand-new entry all go through here.
     const superAdmin = await strapi.service('admin::role').getSuperAdmin();
@@ -199,6 +305,10 @@ const run = async () => {
     const home = await documents('home-page').findFirst({ locale: 'en', status: 'draft' });
     await documents('home-page').update({ documentId: home.documentId, locale: 'en', data: { sections: [{ __component: 'sections.statement', text: 'A statement.', image }] } });
     refusedByAdmin('admin: Publish on the Home page with no alt text is refused', await admin(`/single-types/${encodeURIComponent(uidOf('home-page'))}/actions/publish?locale=en`, {}), 'Section 1 (Statement)');
+
+    const untyped = await draftOf('project', { ...dataFor('project', described), typology: null });
+    refusedByAdmin('admin: Publish on a Project with no Typology is refused', await admin(`/collection-types/${model}/${untyped}/actions/publish?locale=en`, {}), 'Choose a Typology.');
+    check('admin: the Project with no Typology is not published', !(await isPublished('project', untyped)));
 
     await setAlt(image, 'A sunlit living room with oak shelving');
     const accepted = await admin(`/collection-types/${model}/${projectDoc.documentId}/actions/publish?locale=en`, {});

@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import rules from '../rules.json';
 import type { Collection, Draft, Figure, Image, Link, Seo, ShareImage } from '../types';
 import { tolerantList } from './tolerance';
 
 // A Page cannot use these slugs because /[slug] would shadow a route (section 10 of the design document).
-export const RESERVED_PAGE_SLUGS = ['projects', 'services', 'journal', 'studio', 'contact', 'api', 'th'] as const;
+export const RESERVED_PAGE_SLUGS: readonly string[] = rules.reservedPageSlugs;
 
 // Strapi enforces the same pattern on Link.href. It is repeated here because an href that arrives around
 // the admin panel, from a seed or a transfer, must still not become a javascript: URL.

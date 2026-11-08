@@ -401,7 +401,8 @@ A single type, such as Site Settings or the Home page, still fails when the docu
 Only what an Editor can cause is dropped: a null relation, empty text, a failed pattern, or a count rule.
 A missing key, a value of the wrong type, or a component the web app does not know fails the whole response, because it means the query or the deployed web app is wrong.
 This makes loud failures quiet.
-Until the CMS refuses to publish everything the strict schemas refuse, the report of what was dropped is the only sign that published content is broken, so the data layer logs every report where someone will see it.
+The CMS refuses broken content when it is published (section 11), so a drop means content arrived around those rules, and the report of what was dropped is the only sign of it.
+The data layer logs every report where someone will see it.
 
 ### Tokens
 
@@ -463,6 +464,15 @@ shadcn/ui provides behaviour, not the look.
 - A publish rule refuses to publish a document whose cover, portrait, or Section image has no alt text.
   It sits in the Document Service, so the Publish button, bulk publish, and publishing a new entry all reach it.
   A create or update with status published skips that path, so it is refused too, and code saves a draft and then publishes it.
+- A relation rule refuses to publish a Project with no Typology, no published Service, or a Credit without a published Team Member, and an Article with no Topic or no published person in its Byline.
+  Strapi leaves a related document with no published version out of a published page, so only published documents count.
+  A Service or Byline person who is not published yet, next to one who is, does not block, and is left out of the page.
+- A Selected Projects rule refuses to publish the Home or Studio page while a Selected Projects Section has fewer than three or more than six published Projects.
+- A slug rule refuses to publish a Page with a reserved slug, whatever its case.
+- The reserved slugs and the Selected Projects bounds live in the web app's `rules.json`.
+  The CMS cannot import the web app at runtime, so it repeats them, and the publish-rules check fails when the two differ.
+- The rules still let some broken content through: text of only spaces, a rich text image node, alt text cleared in the Media Library after publishing, bulk unpublish (below), and anything written around the Document Service, such as a transfer or a seed.
+  The web app drops what gets through (section 10).
 - A dependency rule refuses to unpublish or delete a document that published pages still depend on.
   Strapi removes an unpublished or deleted document from the published relations that point at it, so the rule finds the published documents that would be left breaking a content rule of the web app.
   A Team Member is protected while a published Project credits them, or while they are the only person in a published Article's Byline.
@@ -512,6 +522,7 @@ flowchart LR
 - A schema check boots Strapi and compares the shared and per-language fields of every content type with section 7, because a missing language flag fails silently.
 - An access check boots Strapi on a throwaway database and tests the roles, the tokens, and the draft gate over real HTTP, because the gate registers and type-checks fine even when it lets every request through.
 - A publish-rules check boots Strapi on a throwaway database and presses Publish, Unpublish, bulk unpublish, and Delete as a signed-in Super Admin over the admin's own HTTP routes, because the publish and dependency rules register and type-check fine even when the admin's buttons never reach them.
+  It reads the web app's `rules.json`, so the CMS cannot drift from the bounds and reserved slugs the web app enforces.
 - Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, the publish-rules check, and a Strapi build.
 
 ## 14. Seed content

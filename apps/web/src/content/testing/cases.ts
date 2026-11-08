@@ -103,7 +103,7 @@ export const refusals: Record<string, Refusal> = {
 // and the rest is kept. Each drop is where the item sat and why, and keeps is what must still be there.
 export type ItemDrop = { strict: z.ZodType; lenient: z.ZodType; dropped: [where: string, reasons: string[]][]; keeps: object };
 
-const SELECTED_PROJECTS = 'projects: Selected Projects needs between three and six Projects';
+const SELECTED_PROJECTS = 'projects: Selected Projects needs 3 to 6 Projects';
 
 export const itemDrops: Record<string, ItemDrop> = {
   'project-credit-unpublished-member': {

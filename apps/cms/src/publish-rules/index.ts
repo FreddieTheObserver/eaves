@@ -1,10 +1,14 @@
 import type { Core } from '@strapi/strapi';
 import { errors } from '@strapi/utils';
 import { altTextRule } from './alt-text';
-import { dependentProblems, describeDocument, type Locale } from './dependents';
+import { dependentProblems, describeDocument } from './dependents';
+import type { Locale } from './published';
+import { requiredRelationsRule } from './relations';
+import { reservedSlugRule } from './reserved-slugs';
+import { selectedProjectsRule } from './selected-projects';
 import type { PublishRule } from './types';
 
-const RULES: PublishRule[] = [altTextRule];
+const RULES: PublishRule[] = [altTextRule, requiredRelationsRule, selectedProjectsRule, reservedSlugRule];
 const SHOWN = 5;
 
 type Params = { documentId?: string; locale?: Locale; status?: string };
@@ -45,7 +49,7 @@ export const registerPublishRules = (strapi: Core.Strapi) => {
         status: 'draft',
         populate: rule.populate(uid, strapi),
       } as never);
-      for (const draft of drafts) problems.push(...rule.problems(uid, draft as Record<string, unknown>));
+      for (const draft of drafts) problems.push(...(await rule.problems(uid, draft as Record<string, unknown>, strapi)));
     }
     if (problems.length > 0) throw new errors.ValidationError(`Cannot publish. ${problems.join(' ')}`, { errors: problems });
 
