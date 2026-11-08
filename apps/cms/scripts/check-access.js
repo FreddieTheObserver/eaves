@@ -1,5 +1,5 @@
 // Boots Strapi on a throwaway database and checks the access setup end to end: the Editor and Author
-// permissions, the empty Public role, the three API tokens, and the draft gate over real HTTP.
+// permissions, the empty Public role, the three API tokens, the draft gate, and CORS over real HTTP.
 // The gate needs this test because it type-checks and registers fine even when it lets every request
 // through (Strapi's policy context drops the Koa query getter), so only a request proves it works.
 // It creates its own database on the server named by the usual DATABASE_* variables and drops it
@@ -10,6 +10,7 @@ const { createStrapi, compileStrapi } = require('@strapi/strapi');
 
 const appDir = path.resolve(__dirname, '..');
 const scratchName = `eaves_access_${process.pid}_${Date.now()}`;
+const WEB_ORIGIN = 'https://web.example';
 
 const server = {
   host: process.env.DATABASE_HOST || 'localhost',
@@ -129,6 +130,9 @@ const checkHttp = async (strapi, tokenIds) => {
     headers: json,
     body: JSON.stringify({ username: 'visitor', email: 'visitor@example.com', password: 'Passw0rd!visitor' }),
   });
+  const allowedOrigin = async (origin) => (await fetch(`${base}/_health`, { headers: { Origin: origin } })).headers.get('access-control-allow-origin');
+  check('CORS allows the web app origin', (await allowedOrigin(WEB_ORIGIN)) === WEB_ORIGIN);
+  check('CORS refuses every other origin', (await allowedOrigin('https://other.example')) === null);
 };
 
 const run = async () => {
@@ -141,6 +145,7 @@ const run = async () => {
     HOST: '127.0.0.1',
     PORT: '0',
     STRAPI_TELEMETRY_DISABLED: 'true',
+    CORS_ORIGINS: WEB_ORIGIN,
   });
   process.chdir(appDir);
 

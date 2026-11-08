@@ -520,7 +520,7 @@ flowchart LR
 - Playwright end-to-end tests run against the full Compose stack with seed content, and cover three flows: publishing updates the live page, Preview shows drafts, and the contact form creates an Inquiry.
 - Lighthouse CI enforces Core Web Vitals budgets on the key pages.
 - A schema check boots Strapi and compares the shared and per-language fields of every content type with section 7, because a missing language flag fails silently.
-- An access check boots Strapi on a throwaway database and tests the roles, the tokens, and the draft gate over real HTTP, because the gate registers and type-checks fine even when it lets every request through.
+- An access check boots Strapi on a throwaway database and tests the roles, the tokens, the draft gate, and CORS over real HTTP, because the gate registers and type-checks fine even when it lets every request through.
 - A publish-rules check boots Strapi on a throwaway database and presses Publish, Unpublish, bulk unpublish, and Delete as a signed-in Super Admin over the admin's own HTTP routes, because the publish and dependency rules register and type-check fine even when the admin's buttons never reach them.
   It reads the web app's `rules.json`, so the CMS cannot drift from the bounds and reserved slugs the web app enforces.
 - Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, the publish-rules check, and a Strapi build.
@@ -566,7 +566,7 @@ flowchart LR
 | --- | --- |
 | 0 Foundations | pnpm workspace, `apps/web` and `apps/cms` scaffolds, shared config, `.gitattributes`, `.gitignore`, `.nvmrc`, Compose with Postgres and MinIO, CI skeleton |
 | 1 Schema and contract | Every content type, component, Block, and Section in Strapi; localization and Draft and Publish flags; roles, permissions, and API tokens; zod schemas and domain types in the content module |
-| 2 CMS behaviour | Upload provider, Preview configuration, webhooks, slug history hook, Inquiry route with rate limiting, retention job, seed script and seed content |
+| 2 CMS behaviour | Upload provider, CORS allow-list, Preview configuration, webhooks, slug history hook, Inquiry route with rate limiting, retention job, seed script and seed content |
 | 3 Web data layer | Content module queries with cache tags, revalidation route, preview route and draft mode, slug history redirects, Inquiry server action with Turnstile |
 | Smoke test | Seeded CMS to a plain, unstyled Project page, end to end, before any styling |
 | 4 Web UI | Tokens from Figma into the Tailwind theme, layout with navigation and Demo Notice from Site Settings, Blocks and Sections, every route template, filters and pagination, contact form, not-found page, metadata, sitemap, structured data |

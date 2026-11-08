@@ -18,7 +18,12 @@ const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Middlewar
         },
       },
     },
-    'strapi::cors',
+    {
+      name: 'strapi::cors',
+      config: {
+        origin: env.array('CORS_ORIGINS', ['http://localhost:3000']),
+      },
+    },
     'strapi::poweredBy',
     'strapi::query',
     'strapi::body',
