@@ -6,6 +6,8 @@ import {
   inquiryInputSchema,
   pageDraftSchema,
   pageSchema,
+  parseContent,
+  projectCardSchema,
   projectDraftSchema,
   projectSchema,
   sectionsPageDraftSchema,
@@ -13,11 +15,13 @@ import {
   single,
   siteSettingsSchema,
 } from './schemas';
+import { documents } from './testing/cases';
 import { change, loadFixture, read } from './testing/fixtures';
+import { dropsOf, valueOf, where } from './testing/parsed';
 
-const projects = collection(projectSchema);
-const articles = collection(articleSchema);
-const pages = collection(pageSchema);
+const projects = collection(projectSchema, 'Project');
+const articles = collection(articleSchema, 'Article');
+const pages = collection(pageSchema, 'Page');
 const sectionsPage = single(sectionsPageSchema);
 const messages = (result: { error?: { issues: { message: string }[] } }) => (result.error?.issues ?? []).map((issue) => issue.message);
 
@@ -25,41 +29,65 @@ describe('required relations', () => {
   const project = loadFixture('project-published');
 
   it('refuses a Project with no Typology', () => {
-    const result = projects.safeParse(change(project, ['data', 0, 'typology'], null));
+    const result = documents(projectSchema).safeParse(change(project, ['data', 0, 'typology'], null));
     expect(messages(result)).toEqual(['A Project must have a Typology']);
   });
 
   it('refuses a Project with no Services', () => {
-    const result = projects.safeParse(change(project, ['data', 0, 'services'], []));
+    const result = documents(projectSchema).safeParse(change(project, ['data', 0, 'services'], []));
     expect(messages(result)).toEqual(['A Project must have at least one Service']);
   });
 
-  it('refuses a Credit that names no Team Member', () => {
-    const result = projects.safeParse(change(project, ['data', 0, 'credits', 1, 'teamMember'], null));
-    expect(messages(result)).toEqual(['A Credit must name a Team Member']);
+  it('drops a refused Project from its list and keeps the others', () => {
+    const list = loadFixture('project-list');
+    const result = parseContent(collection(projectCardSchema, 'Project'), change(list, ['data', 1, 'typology'], null));
+    expect(valueOf(result).items.map((card) => card.slug)).toEqual(['linden-house', 'river-studio']);
+    expect(dropsOf(result)).toEqual([['Project[1]', ['typology: A Project must have a Typology']]]);
+    expect(result.dropped[0].path[0].id).toBe('projectMill');
+  });
+
+  it('drops a Credit that names no Team Member and keeps the Project', () => {
+    const result = parseContent(projects, change(project, ['data', 0, 'credits', 1, 'teamMember'], null));
+    expect(valueOf(result).items[0].credits.map((credit) => credit.role)).toEqual(['Lead designer']);
+    expect(dropsOf(result)).toEqual([['Project[0] > Credit[1]', ['teamMember: A Credit must name a Team Member']]]);
   });
 
   it('accepts a Project with no Credits and a Quote with no speaker', () => {
     const bare = change(change(project, ['data', 0, 'credits'], []), ['data', 0, 'body', 4, 'speaker'], null);
-    expect(projects.safeParse(bare).success).toBe(true);
+    expect(parseContent(projects, bare)).toMatchObject({ ok: true, dropped: [] });
   });
 
   it('refuses an Article with no Topic or no Byline', () => {
     const article = loadFixture('article-published');
-    expect(messages(articles.safeParse(change(article, ['data', 0, 'topic'], null)))).toEqual(['An Article must have a Topic']);
-    expect(messages(articles.safeParse(change(article, ['data', 0, 'byline'], [])))).toEqual([
+    const strict = documents(articleSchema);
+    expect(messages(strict.safeParse(change(article, ['data', 0, 'topic'], null)))).toEqual(['An Article must have a Topic']);
+    expect(messages(strict.safeParse(change(article, ['data', 0, 'byline'], [])))).toEqual([
       'An Article must name at least one Team Member in its Byline',
     ]);
   });
 
   it('accepts an Article with no related Projects', () => {
-    expect(articles.safeParse(change(loadFixture('article-published'), ['data', 0, 'relatedProjects'], [])).success).toBe(true);
+    const result = parseContent(articles, change(loadFixture('article-published'), ['data', 0, 'relatedProjects'], []));
+    expect(result).toMatchObject({ ok: true, dropped: [] });
+  });
+
+  it('drops a related Project that breaks a rule and keeps the Article', () => {
+    const article = loadFixture('article-published');
+    const result = parseContent(articles, change(article, ['data', 0, 'relatedProjects', 0, 'cover', 'alternativeText'], null));
+    expect(valueOf(result).items[0]).toMatchObject({ slug: 'oak-and-light', relatedProjects: [] });
+    expect(dropsOf(result)).toEqual([['Article[0] > Related Project[0]', ['cover.alternativeText: Alternative text is required']]]);
   });
 
   it('fails when a populate is missing, so a wrong query cannot pass as empty content', () => {
     const withoutTypology = structuredClone(project) as { data: Record<string, unknown>[] };
     delete withoutTypology.data[0].typology;
-    expect(projects.safeParse(withoutTypology).success).toBe(false);
+    expect(parseContent(projects, withoutTypology)).toMatchObject({ ok: false, problems: ['data.0.typology: A Project must have a Typology'] });
+  });
+
+  it('fails when a populate inside a Credit is missing, rather than dropping every Credit', () => {
+    const withoutMember = structuredClone(project) as { data: { credits: Record<string, unknown>[] }[] };
+    delete withoutMember.data[0].credits[0].teamMember;
+    expect(parseContent(projects, withoutMember)).toMatchObject({ ok: false, problems: ['data.0.credits.0.teamMember: A Credit must name a Team Member'] });
   });
 });
 
@@ -98,41 +126,55 @@ describe('consent', () => {
 
 describe('alt text', () => {
   const home = loadFixture('home-page-published');
-  const statementAlt = ['data', 'sections', 0, 'imageAlt'];
-  const introAlt = ['data', 'sections', 4, 'imageAlt'];
 
-  it('requires imageAlt on a Statement and a Studio introduction that set an image', () => {
-    for (const path of [statementAlt, introAlt]) {
-      for (const imageAlt of [null, '', '   ']) {
-        const result = sectionsPage.safeParse(change(home, path, imageAlt));
-        expect(messages(result), `${path.join('.')} = ${JSON.stringify(imageAlt)}`).toEqual(['Alt text is required when an image is set']);
-      }
+  it.each([
+    [0, 'statement'],
+    [4, 'studioIntroduction'],
+  ])('drops Section %i, a %s that sets an image without imageAlt, and keeps the rest of the page', (index, type) => {
+    for (const imageAlt of [null, '', '   ']) {
+      const result = parseContent(sectionsPage, change(home, ['data', 'sections', index, 'imageAlt'], imageAlt));
+      expect(dropsOf(result), JSON.stringify(imageAlt)).toEqual([[`Section[${index}]`, ['imageAlt: Alt text is required when an image is set']]]);
+      const kept = valueOf(result).sections.map((section) => section.type);
+      expect(kept).toHaveLength(7);
+      expect(kept).not.toContain(type);
     }
   });
 
   it('does not ask for alt text when there is no image', () => {
-    const noImage = change(change(home, ['data', 'sections', 0, 'image'], null), statementAlt, null);
-    expect(sectionsPage.safeParse(noImage).success).toBe(true);
+    const noImage = change(change(home, ['data', 'sections', 0, 'image'], null), ['data', 'sections', 0, 'imageAlt'], null);
+    expect(parseContent(sectionsPage, noImage)).toMatchObject({ ok: true, dropped: [] });
   });
 
   it('carries the alt text into the image', () => {
-    const section = sectionsPage.parse(home).sections[0];
+    const section = valueOf(parseContent(sectionsPage, home)).sections[0];
     expect(section).toMatchObject({ type: 'statement', image: { alt: 'Deep timber eaves over a courtyard' } });
   });
 
-  it('requires alternative text on a cover, a portrait and every other image shown on the page', () => {
+  it('refuses a Project whose cover has no alternative text', () => {
     const project = loadFixture('project-published');
     for (const alternativeText of [null, '', '  ']) {
-      expect(projects.safeParse(change(project, ['data', 0, 'cover', 'alternativeText'], alternativeText)).success).toBe(false);
+      const result = documents(projectSchema).safeParse(change(project, ['data', 0, 'cover', 'alternativeText'], alternativeText));
+      expect(messages(result)).toEqual(['Alternative text is required']);
     }
-    expect(projects.safeParse(change(project, ['data', 0, 'body', 1, 'alt'], '')).success).toBe(false);
-    expect(projects.safeParse(change(project, ['data', 0, 'body', 2, 'left', 'alt'], null)).success).toBe(false);
+  });
+
+  it.each([
+    [1, ['alt'], 'image'],
+    [2, ['left', 'alt'], 'imagePair'],
+  ])('drops Block %i, an %s Block with no alt text, and keeps the rest of the body', (index, path, type) => {
+    const project = loadFixture('project-published');
+    const result = parseContent(projects, change(project, ['data', 0, 'body', index, ...path], null));
+    expect(dropsOf(result)).toEqual([[`Project[0] > Block[${index}]`, [expect.stringMatching(new RegExp(`^${path.join('\\.')}: `))]]]);
+    expect(result.dropped[0].path[1].id).toBe(read(project, ['data', 0, 'body', index, '__component']));
+    const kept = valueOf(result).items[0].body.map((block) => block.type);
+    expect(kept).toHaveLength(5);
+    expect(kept).not.toContain(type);
   });
 
   it('does not ask for alt text on a share image, which is never shown on the page', () => {
     const project = loadFixture('project-published');
     const noAlt = change(project, ['data', 0, 'seo', 'shareImage', 'alternativeText'], null);
-    expect(projects.safeParse(noAlt).success).toBe(true);
+    expect(parseContent(projects, noAlt)).toMatchObject({ ok: true, dropped: [] });
   });
 });
 
@@ -140,21 +182,40 @@ describe('Selected Projects', () => {
   const home = loadFixture('home-page-published');
   const projectsPath = ['data', 'sections', 1, 'projects'];
   const card = read(home, [...projectsPath, 0]);
-  const withProjects = (count: number) => change(home, projectsPath, Array.from({ length: count }, () => card));
+  const withProjects = (count: number) => change(home, projectsPath, Array.from({ length: count }, () => structuredClone(card)));
+  const withoutAlt = (fixture: ReturnType<typeof withProjects>) => change(fixture, [...projectsPath, 0, 'cover', 'alternativeText'], null);
+  const RULE = 'projects: Selected Projects needs between three and six Projects';
+  const CARD_WITHOUT_ALT = ['Section[1] > Project card[0]', ['cover.alternativeText: Alternative text is required']];
 
   it.each([3, 4, 5, 6])('accepts %i Projects', (count) => {
-    expect(sectionsPage.safeParse(withProjects(count)).success).toBe(true);
+    expect(parseContent(sectionsPage, withProjects(count))).toMatchObject({ ok: true, dropped: [] });
   });
 
-  it.each([0, 1, 2, 7, 12])('refuses %i Projects', (count) => {
-    const result = sectionsPage.safeParse(withProjects(count));
-    expect(messages(result)).toEqual(['Selected Projects needs between three and six Projects']);
+  it.each([0, 1, 2, 7, 12])('drops the Section with %i Projects and keeps the rest of the page', (count) => {
+    const result = parseContent(sectionsPage, withProjects(count));
+    expect(dropsOf(result)).toEqual([['Section[1]', [RULE]]]);
+    const kept = valueOf(result).sections.map((section) => section.type);
+    expect(kept).toHaveLength(7);
+    expect(kept).not.toContain('selectedProjects');
+  });
+
+  it('drops a broken card and keeps the Section while three remain', () => {
+    const result = parseContent(sectionsPage, withoutAlt(withProjects(4)));
+    expect(dropsOf(result)).toEqual([CARD_WITHOUT_ALT]);
+    expect(valueOf(result).sections[1]).toMatchObject({ type: 'selectedProjects', projects: [{}, {}, {}] });
+  });
+
+  it('drops the Section when a broken card leaves fewer than three, and names that card as the cause', () => {
+    const result = parseContent(sectionsPage, withoutAlt(withProjects(3)));
+    expect(dropsOf(result)).toEqual([['Section[1]', [RULE]]]);
+    expect(result.dropped[0].causes.map((cause) => [where(cause), cause.reasons])).toEqual([CARD_WITHOUT_ALT]);
   });
 
   it('applies to the Studio page too, which shares the catalogue', () => {
     const studio = loadFixture('studio-page-published');
     const withSection = change(studio, ['data', 'sections'], [{ ...(read(home, ['data', 'sections', 1]) as object) }]);
-    expect(sectionsPage.safeParse(change(withSection, ['data', 'sections', 0, 'projects'], [card])).success).toBe(false);
+    const result = parseContent(sectionsPage, change(withSection, ['data', 'sections', 0, 'projects'], [card]));
+    expect(dropsOf(result)).toEqual([['Section[0]', [RULE]]]);
   });
 
   it('is not enforced on a draft, where fewer Projects may simply not be chosen yet', () => {
@@ -168,63 +229,82 @@ describe('reserved Page slugs', () => {
   const withSlug = (slug: string) => change(page, ['data', 0, 'slug'], slug);
 
   it.each(RESERVED_PAGE_SLUGS)('refuses the slug %s', (slug) => {
-    expect(messages(pages.safeParse(withSlug(slug)))).toEqual([expect.stringContaining(`The slug "${slug}" is reserved for a route`)]);
+    expect(messages(documents(pageSchema).safeParse(withSlug(slug)))).toEqual([expect.stringContaining(`The slug "${slug}" is reserved for a route`)]);
   });
 
   it('matches a reserved slug whatever its case', () => {
-    expect(pages.safeParse(withSlug('API')).success).toBe(false);
+    expect(documents(pageSchema).safeParse(withSlug('API')).success).toBe(false);
   });
 
   it.each(['privacy', 'about-this-demo', 'projects-archive', 'the', 'thai'])('accepts the slug %s', (slug) => {
-    expect(pages.safeParse(withSlug(slug)).success).toBe(true);
+    expect(valueOf(parseContent(pages, withSlug(slug))).items).toMatchObject([{ slug }]);
   });
 
   it('is not enforced on a draft', () => {
-    expect(collection(pageDraftSchema).safeParse(withSlug('journal')).success).toBe(true);
+    expect(parseContent(collection(pageDraftSchema, 'Page'), withSlug('journal'))).toMatchObject({ ok: true, dropped: [] });
   });
 });
 
 describe('what the schemas add to what Strapi checks', () => {
   const settings = loadFixture('site-settings-published');
   const siteSettings = single(siteSettingsSchema);
-  const withHref = (href: string) => change(settings, ['data', 'headerNavigation', 0, 'href'], href);
+  const withHref = (list: string, href: string) => change(settings, ['data', list, 0, 'href'], href);
 
   it.each(['/projects', '/', 'https://example.com/path?q=1'])('accepts the link %s', (href) => {
-    expect(siteSettings.safeParse(withHref(href)).success).toBe(true);
+    const result = parseContent(siteSettings, withHref('headerNavigation', href));
+    expect(result.dropped).toEqual([]);
+    expect(valueOf(result).headerNavigation[0].href).toBe(href);
   });
 
-  it.each(['javascript:alert(1)', '//evil.example', 'http://example.com', 'data:text/html,x', 'projects', '/a b'])('refuses the link %s', (href) => {
-    expect(siteSettings.safeParse(withHref(href)).success).toBe(false);
+  it.each(['javascript:alert(1)', '//evil.example', 'http://example.com', 'data:text/html,x', 'projects', '/a b'])(
+    'never shows the link %s, and drops it from the navigation',
+    (href) => {
+      const result = parseContent(siteSettings, withHref('headerNavigation', href));
+      expect(dropsOf(result)).toEqual([['Header navigation link[0]', [expect.stringMatching(/^href: /)]]]);
+      expect(valueOf(result).headerNavigation.map((link) => link.href)).toEqual(['/journal']);
+    }
+  );
+
+  it.each([
+    ['socialLinks', 'Social link'],
+    ['footerNavigation', 'Footer navigation link'],
+  ] as const)('drops a script link from %s too', (list, what) => {
+    const result = parseContent(siteSettings, withHref(list, 'javascript:alert(1)'));
+    expect(dropsOf(result)).toEqual([[`${what}[0]`, [expect.stringMatching(/^href: /)]]]);
+    expect(valueOf(result)[list]).toEqual([]);
   });
 
   it('accepts a relative and an absolute media URL', () => {
     const project = loadFixture('project-published');
     const absolute = change(project, ['data', 0, 'cover', 'url'], 'https://media.example.com/uploads/linden.png');
-    expect(projects.parse(absolute).items[0].cover.url).toBe('https://media.example.com/uploads/linden.png');
-    expect(projects.parse(project).items[0].cover.url).toMatch(/^\/uploads\//);
+    expect(valueOf(parseContent(projects, absolute)).items[0].cover.url).toBe('https://media.example.com/uploads/linden.png');
+    expect(valueOf(parseContent(projects, project)).items[0].cover.url).toMatch(/^\/uploads\//);
   });
 
-  it('refuses a rich text image node, because the Image Block carries the alt text', () => {
+  it('drops a Text Block holding a rich text image node, because the Image Block carries the alt text', () => {
     const project = loadFixture('project-published');
     const image = { type: 'image', image: { url: '/uploads/x.png', alternativeText: 'x' }, children: [{ type: 'text', text: '' }] };
     const body = read(project, ['data', 0, 'body', 0, 'body']) as unknown[];
-    expect(projects.safeParse(change(project, ['data', 0, 'body', 0, 'body'], [...(body as never[]), image as never])).success).toBe(false);
+    const result = parseContent(projects, change(project, ['data', 0, 'body', 0, 'body'], [...(body as never[]), image as never]));
+    expect(dropsOf(result)).toEqual([['Project[0] > Block[0]', [expect.stringMatching(/^body\.6: /)]]]);
+    expect(valueOf(result).items[0].body.map((block) => block.type)).not.toContain('text');
   });
 
-  it('refuses a rich text link to a script', () => {
+  it('drops a Text Block holding a rich text link to a script, so the script never reaches a page', () => {
     const project = loadFixture('project-published');
-    const link = change(project, ['data', 0, 'body', 0, 'body', 1, 'children', 11, 'url'], 'javascript:alert(1)');
-    expect(projects.safeParse(link).success).toBe(false);
+    const result = parseContent(projects, change(project, ['data', 0, 'body', 0, 'body', 1, 'children', 11, 'url'], 'javascript:alert(1)'));
+    expect(dropsOf(result)).toEqual([['Project[0] > Block[0]', [expect.stringMatching(/^body\.1\.children\.11\.url: /)]]]);
+    expect(JSON.stringify(valueOf(result))).not.toContain('javascript:');
   });
 
-  it('refuses a block type the web app does not know', () => {
+  it('fails on a block type the web app does not know, because the web app is behind the CMS', () => {
     const project = loadFixture('project-published');
     const unknown = change(project, ['data', 0, 'body', 0, '__component'], 'blocks.video');
-    expect(projects.safeParse(unknown).success).toBe(false);
-    expect(collection(projectDraftSchema).safeParse(unknown).success).toBe(false);
+    expect(parseContent(projects, unknown)).toMatchObject({ ok: false, problems: [expect.stringMatching(/^data\.0\.body\.0\.__component: /)] });
+    expect(parseContent(collection(projectDraftSchema, 'Project'), unknown).ok).toBe(false);
   });
 
   it('treats a whitespace-only title as missing', () => {
-    expect(projects.safeParse(change(loadFixture('project-published'), ['data', 0, 'title'], '  ')).success).toBe(false);
+    expect(documents(projectSchema).safeParse(change(loadFixture('project-published'), ['data', 0, 'title'], '  ')).success).toBe(false);
   });
 });

@@ -4,6 +4,7 @@ import {
   articleCardSchema,
   collection,
   inquiryCreatedSchema,
+  parseContent,
   projectDraftSchema,
   projectSchema,
   sectionsPageDraftSchema,
@@ -14,6 +15,7 @@ import {
 } from './schemas';
 import { published } from './testing/cases';
 import { loadFixture, read } from './testing/fixtures';
+import { valueOf } from './testing/parsed';
 
 const strapiKeys = ['documentId', '__component', 'createdAt', 'updatedAt', 'publishedAt', 'alternativeText', 'formats', 'data', 'meta', 'attributes'];
 
@@ -26,13 +28,15 @@ const keysIn = (value: unknown): string[] =>
 
 describe('domain types', () => {
   it.each(Object.entries(published))('%s leaves no Strapi key in what pages receive', (name, { strict }) => {
-    const leaked = keysIn(strict.parse(loadFixture(name))).filter((key) => strapiKeys.includes(key));
+    const result = parseContent(strict, loadFixture(name));
+    expect(result.dropped).toEqual([]);
+    const leaked = keysIn(valueOf(result)).filter((key) => strapiKeys.includes(key));
     expect(leaked).toEqual([]);
   });
 
   it('reads a Project with the id, location and image the pages use', () => {
     const wire = read(loadFixture('project-published'), ['data', 0]) as Record<string, unknown>;
-    const [project] = collection(projectSchema).parse(loadFixture('project-published')).items;
+    const [project] = collection(projectSchema, 'Project').parse(loadFixture('project-published')).items;
     expect(project).toMatchObject({
       id: wire.documentId,
       locale: 'en',
@@ -55,7 +59,7 @@ describe('domain types', () => {
 
   it('keeps the document id of everything a page shows indirectly, for cache tags', () => {
     const wire = read(loadFixture('project-published'), ['data', 0]) as Record<string, unknown>;
-    const [project] = collection(projectSchema).parse(loadFixture('project-published')).items;
+    const [project] = collection(projectSchema, 'Project').parse(loadFixture('project-published')).items;
     const typology = wire.typology as { documentId: string };
     const services = wire.services as { documentId: string }[];
     const credits = wire.credits as { teamMember: { documentId: string } }[];
@@ -65,7 +69,7 @@ describe('domain types', () => {
   });
 
   it('reads every kind of Block in the order it was written', () => {
-    const [project] = collection(projectSchema).parse(loadFixture('project-published')).items;
+    const [project] = collection(projectSchema, 'Project').parse(loadFixture('project-published')).items;
     expect(project.body.map((block) => block.type)).toEqual(['text', 'image', 'imagePair', 'gallery', 'quote', 'drawing']);
     expect(project.body[1]).toMatchObject({ type: 'image', caption: 'The terrace at noon', image: { alt: 'Deep eaves over a timber terrace' } });
     expect(project.body[4]).toMatchObject({ type: 'quote', text: 'Rooms should breathe.', speaker: { name: 'Designer One' } });
@@ -73,7 +77,7 @@ describe('domain types', () => {
   });
 
   it('reads rich text with its marks, links and lists', () => {
-    const [project] = collection(projectSchema).parse(loadFixture('project-published')).items;
+    const [project] = collection(projectSchema, 'Project').parse(loadFixture('project-published')).items;
     const text = project.body[0];
     if (text.type !== 'text') throw new Error('expected a text Block');
     expect(text.body.map((node) => node.type)).toEqual(['heading', 'paragraph', 'list', 'list', 'quote', 'code']);
@@ -86,7 +90,7 @@ describe('domain types', () => {
   });
 
   it('turns an empty optional field into undefined rather than null', () => {
-    const [project] = collection(projectSchema).parse(loadFixture('project-published')).items;
+    const [project] = collection(projectSchema, 'Project').parse(loadFixture('project-published')).items;
     expect(project.body[2]).toMatchObject({ right: { caption: undefined } });
     expect(JSON.stringify(project)).not.toContain('null');
   });
@@ -110,7 +114,7 @@ describe('domain types', () => {
   });
 
   it('reads a list with its pagination', () => {
-    const articles = collection(articleCardSchema).parse(loadFixture('article-list'));
+    const articles = collection(articleCardSchema, 'Article').parse(loadFixture('article-list'));
     expect(articles.pagination).toEqual({ page: 1, pageSize: 12, pageCount: 1, total: 1 });
     expect(articles.items[0]).toMatchObject({ slug: 'oak-and-light', publicationDate: '2026-03-12', topic: { name: 'Material' } });
   });
@@ -125,7 +129,7 @@ describe('domain types', () => {
   });
 
   it('reads a Slug history entry with the id of its target', () => {
-    const [entry] = collection(slugHistorySchema).parse(loadFixture('slug-history-lookup')).items;
+    const [entry] = collection(slugHistorySchema, 'Slug history entry').parse(loadFixture('slug-history-lookup')).items;
     const wire = read(loadFixture('slug-history-lookup'), ['data', 0]) as Record<string, unknown>;
     expect(entry).toEqual({ id: wire.documentId, oldPath: '/projects/old-linden', targetType: 'project', targetId: wire.targetDocumentId });
   });

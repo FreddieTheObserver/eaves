@@ -3,6 +3,7 @@ import type { Block, Draft } from '../types';
 import { draftRichText, richText } from './rich-text';
 import { draftTeamMemberRef, teamMemberRef } from './references';
 import { draftFigureSchema, figureSchema, list, maybe, maybeText, mediaFile, populated, requiredText, toDraftImage, toImage } from './shared';
+import { tolerantList } from './tolerance';
 
 const drawingKind = z.enum(['plan', 'section', 'elevation']);
 
@@ -63,5 +64,5 @@ export const draftBlockSchema = draftBlockWire.transform((value): Draft<Block> =
   }
 });
 
-export const bodySchema = z.array(blockSchema);
+export const bodySchema = tolerantList('Block', blockSchema);
 export const draftBodySchema = list(draftBlockSchema);

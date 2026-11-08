@@ -394,6 +394,15 @@ It talks to the REST API through the official `@strapi/client`, validates every 
 Each content type has a strict schema for published content and a lenient one for drafts, because drafts can be missing required fields.
 Pages and components never see a Strapi response shape.
 
+One broken item does not take down the page that shows it.
+A document in a list, a Credit, Block, Section, related Project, Selected Projects card, or Site Settings link that breaks a content rule is dropped and reported.
+A Selected Projects Section left with fewer than three cards is dropped as a whole.
+A single type, such as Site Settings or the Home page, still fails when the document itself breaks a rule.
+Only what an Editor can cause is dropped: a null relation, empty text, a failed pattern, or a count rule.
+A missing key, a value of the wrong type, or a component the web app does not know fails the whole response, because it means the query or the deployed web app is wrong.
+This makes loud failures quiet.
+Until the CMS refuses to publish everything the strict schemas refuse, the report of what was dropped is the only sign that published content is broken, so the data layer logs every report where someone will see it.
+
 ### Tokens
 
 | Token | Allows | Used by |
@@ -462,6 +471,7 @@ shadcn/ui provides behaviour, not the look.
   A Typology or Topic is protected from deletion while a published Project or Article uses it.
   A relation the web app does not require, such as a Quote speaker, a related Project, or one person among several in a Byline, does not block, so unpublishing it removes it from those pages without a word.
   Bulk unpublish checks each document while the others are still published, so unpublishing two featured Projects together can pass a check that each would fail alone.
+  The web app then drops the Section rather than failing the Home page (section 10).
 
 ### Security
 
@@ -496,7 +506,7 @@ flowchart LR
 ## 13. Quality bar
 
 - WCAG 2.2 AA, checked with axe inside the Playwright tests.
-- Vitest unit tests check every zod schema in the content module against recorded Strapi responses, including half-filled drafts.
+- Vitest unit tests check every zod schema in the content module against recorded Strapi responses, including half-filled drafts, and check what each broken item drops.
 - Playwright end-to-end tests run against the full Compose stack with seed content, and cover three flows: publishing updates the live page, Preview shows drafts, and the contact form creates an Inquiry.
 - Lighthouse CI enforces Core Web Vitals budgets on the key pages.
 - A schema check boots Strapi and compares the shared and per-language fields of every content type with section 7, because a missing language flag fails silently.

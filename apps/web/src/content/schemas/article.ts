@@ -4,6 +4,7 @@ import { bodySchema, draftBodySchema } from './blocks';
 import { projectCardDraftSchema, projectCardSchema } from './project';
 import { draftTeamMemberRef, draftTopicRef, teamMemberRef, topicRef } from './references';
 import { coverImage, draftCover, draftSeo, list, maybeText, requiredText, seo } from './shared';
+import { tolerantList } from './tolerance';
 
 const publicationDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Publication date must be a calendar date');
 
@@ -34,7 +35,7 @@ export const articleCardSchema = cardWire.transform(toCard);
 export const articleSchema = cardWire
   .extend({
     byline: z.array(teamMemberRef()).min(1, 'An Article must name at least one Team Member in its Byline'),
-    relatedProjects: z.array(projectCardSchema),
+    relatedProjects: tolerantList('Related Project', projectCardSchema),
     body: bodySchema,
     seo,
   })

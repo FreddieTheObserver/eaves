@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import { z } from 'zod';
 import {
   articleCardSchema,
   articleDraftSchema,
@@ -29,19 +29,19 @@ import {
 export type Published = { strict: z.ZodType; lenient?: z.ZodType };
 
 export const published: Record<string, Published> = {
-  'project-list': { strict: collection(projectCardSchema) },
-  'project-published': { strict: collection(projectSchema), lenient: collection(projectDraftSchema) },
-  'service-list': { strict: collection(serviceSchema), lenient: collection(serviceDraftSchema) },
-  'team-member-list': { strict: collection(teamMemberSchema), lenient: collection(teamMemberDraftSchema) },
-  'typology-list': { strict: collection(typologySchema) },
-  'topic-list': { strict: collection(topicSchema) },
-  'article-list': { strict: collection(articleCardSchema) },
-  'article-published': { strict: collection(articleSchema), lenient: collection(articleDraftSchema) },
-  'page-published': { strict: collection(pageSchema), lenient: collection(pageDraftSchema) },
+  'project-list': { strict: collection(projectCardSchema, 'Project') },
+  'project-published': { strict: collection(projectSchema, 'Project'), lenient: collection(projectDraftSchema, 'Project') },
+  'service-list': { strict: collection(serviceSchema, 'Service'), lenient: collection(serviceDraftSchema, 'Service') },
+  'team-member-list': { strict: collection(teamMemberSchema, 'Team Member'), lenient: collection(teamMemberDraftSchema, 'Team Member') },
+  'typology-list': { strict: collection(typologySchema, 'Typology') },
+  'topic-list': { strict: collection(topicSchema, 'Topic') },
+  'article-list': { strict: collection(articleCardSchema, 'Article') },
+  'article-published': { strict: collection(articleSchema, 'Article'), lenient: collection(articleDraftSchema, 'Article') },
+  'page-published': { strict: collection(pageSchema, 'Page'), lenient: collection(pageDraftSchema, 'Page') },
   'home-page-published': { strict: single(sectionsPageSchema), lenient: single(sectionsPageDraftSchema) },
   'studio-page-published': { strict: single(sectionsPageSchema), lenient: single(sectionsPageDraftSchema) },
   'site-settings-published': { strict: single(siteSettingsSchema), lenient: single(siteSettingsDraftSchema) },
-  'slug-history-lookup': { strict: collection(slugHistorySchema) },
+  'slug-history-lookup': { strict: collection(slugHistorySchema, 'Slug history entry') },
   'inquiry-created': { strict: inquiryCreatedSchema },
 };
 
@@ -58,55 +58,75 @@ export const drafts: Record<string, Draft> = {
   'site-settings-draft': { strict: single(siteSettingsSchema), lenient: single(siteSettingsDraftSchema) },
 };
 
-// Published documents that Strapi accepted but the content rules refuse. Each issue is the path the strict
-// schema reports and a piece of its message.
-export type Violation = { strict: z.ZodType; lenient: z.ZodType; issues: [path: string, message: string][] };
+// Reads every document of a list with no tolerance, so a test sees exactly why one is refused. The web app
+// reads lists with collection, which drops that document instead.
+export const documents = <T extends z.ZodType>(item: T) => z.object({ data: z.array(item) });
 
-export const violations: Record<string, Violation> = {
+// Published documents that Strapi accepted but that break a rule on the document itself, so the document
+// is refused. Each issue is the path inside the document and a piece of the message.
+export type Refusal = { item: z.ZodType; what: string; lenient: z.ZodType; issues: [path: string, message: string][] };
+
+export const refusals: Record<string, Refusal> = {
   'project-without-relations': {
-    strict: collection(projectSchema),
-    lenient: collection(projectDraftSchema),
+    item: projectSchema,
+    what: 'Project',
+    lenient: collection(projectDraftSchema, 'Project'),
     issues: [
-      ['data.0.typology', 'must have a Typology'],
-      ['data.0.services', 'at least one Service'],
+      ['typology', 'must have a Typology'],
+      ['services', 'at least one Service'],
     ],
   },
   'project-cover-without-alt': {
-    strict: collection(projectSchema),
-    lenient: collection(projectDraftSchema),
-    issues: [['data.0.cover.alternativeText', 'Alternative text is required']],
-  },
-  'project-credit-unpublished-member': {
-    strict: collection(projectSchema),
-    lenient: collection(projectDraftSchema),
-    issues: [['data.0.credits.0.teamMember', 'must name a Team Member']],
+    item: projectSchema,
+    what: 'Project',
+    lenient: collection(projectDraftSchema, 'Project'),
+    issues: [['cover.alternativeText', 'Alternative text is required']],
   },
   'article-without-relations': {
-    strict: collection(articleSchema),
-    lenient: collection(articleDraftSchema),
+    item: articleSchema,
+    what: 'Article',
+    lenient: collection(articleDraftSchema, 'Article'),
     issues: [
-      ['data.0.topic', 'must have a Topic'],
-      ['data.0.byline', 'at least one Team Member'],
+      ['topic', 'must have a Topic'],
+      ['byline', 'at least one Team Member'],
     ],
   },
   'page-reserved-slug': {
-    strict: collection(pageSchema),
-    lenient: collection(pageDraftSchema),
-    issues: [['data.0.slug', 'reserved for a route']],
+    item: pageSchema,
+    what: 'Page',
+    lenient: collection(pageDraftSchema, 'Page'),
+    issues: [['slug', 'reserved for a route']],
+  },
+};
+
+// Published documents that are fine themselves but hold an item that breaks a rule, so the item is dropped
+// and the rest is kept. Each drop is where the item sat and why, and keeps is what must still be there.
+export type ItemDrop = { strict: z.ZodType; lenient: z.ZodType; dropped: [where: string, reasons: string[]][]; keeps: object };
+
+const SELECTED_PROJECTS = 'projects: Selected Projects needs between three and six Projects';
+
+export const itemDrops: Record<string, ItemDrop> = {
+  'project-credit-unpublished-member': {
+    strict: collection(projectSchema, 'Project'),
+    lenient: collection(projectDraftSchema, 'Project'),
+    dropped: [['Project[0] > Credit[0]', ['teamMember: A Credit must name a Team Member']]],
+    keeps: { items: [{ slug: 'orphan-credit-house', credits: [] }] },
   },
   'home-page-violations': {
     strict: single(sectionsPageSchema),
     lenient: single(sectionsPageDraftSchema),
-    issues: [['data.sections.1.projects', 'between three and six']],
+    dropped: [['Section[1]', [SELECTED_PROJECTS]]],
+    keeps: { sections: [{ type: 'statement' }] },
   },
   'studio-page-violations': {
     strict: single(sectionsPageSchema),
     lenient: single(sectionsPageDraftSchema),
-    issues: [['data.sections.0.projects', 'between three and six']],
+    dropped: [['Section[0]', [SELECTED_PROJECTS]]],
+    keeps: { sections: [] },
   },
 };
 
 // Recorded responses that look wrong but pass: the strict schema cannot see what Strapi removed.
 export const silentDrops: Record<string, Published> = {
-  'article-unpublished-byline': { strict: collection(articleSchema), lenient: collection(articleDraftSchema) },
+  'article-unpublished-byline': { strict: collection(articleSchema, 'Article'), lenient: collection(articleDraftSchema, 'Article') },
 };

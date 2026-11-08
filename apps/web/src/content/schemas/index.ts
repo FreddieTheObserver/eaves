@@ -9,3 +9,4 @@ export { RESERVED_PAGE_SLUGS, collection, single } from './shared';
 export { siteSettingsDraftSchema, siteSettingsSchema } from './site-settings';
 export { slugHistorySchema } from './slug-history';
 export { teamMemberDraftSchema, teamMemberSchema } from './team-member';
+export { describeDropped, parseContent, type Dropped, type Parsed, type Place } from './tolerance';

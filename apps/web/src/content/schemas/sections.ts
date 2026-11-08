@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { Draft, Section, SectionsPage } from '../types';
 import { projectCardDraftSchema, projectCardSchema } from './project';
 import { draftSeo, list, maybeText, mediaFile, populated, requiredText, seo, toDraftImage, toImage } from './shared';
+import { tolerantList } from './tolerance';
 
 // Strapi cannot require imageAlt only when image is set, so each Section with an image checks it here.
 // An imageAlt of only spaces reads as missing, because maybeText drops it.
@@ -17,7 +18,8 @@ const sectionWire = z.discriminatedUnion('__component', [
   z.object({
     __component: z.literal('sections.selected-projects'),
     heading: maybeText,
-    projects: z.array(projectCardSchema).min(3, SELECTED_PROJECTS_MESSAGE).max(6, SELECTED_PROJECTS_MESSAGE),
+    // Counted after broken cards are dropped, so the Section is dropped too when fewer than three remain.
+    projects: tolerantList('Project card', projectCardSchema).refine((cards) => cards.length >= 3 && cards.length <= 6, SELECTED_PROJECTS_MESSAGE),
   }),
   z.object({ __component: z.literal('sections.services-overview'), heading: requiredText, intro: maybeText }),
   z.object({ __component: z.literal('sections.latest-articles'), heading: requiredText }),
@@ -118,7 +120,7 @@ export const draftSectionSchema = draftSectionWire.transform((value): Draft<Sect
 
 // The Home page and the Studio page share one catalogue of Sections, so they share these schemas.
 export const sectionsPageSchema = z
-  .object({ documentId: requiredText, locale: requiredText, sections: z.array(sectionSchema), seo })
+  .object({ documentId: requiredText, locale: requiredText, sections: tolerantList('Section', sectionSchema), seo })
   .transform((value): SectionsPage => ({ id: value.documentId, locale: value.locale, sections: value.sections, seo: value.seo }));
 
 export const sectionsPageDraftSchema = z

@@ -3,6 +3,7 @@ import type { Credit, Draft, Project, ProjectCard } from '../types';
 import { bodySchema, draftBodySchema } from './blocks';
 import { draftServiceRef, draftTeamMemberRef, draftTypologyRef, serviceRef, teamMemberRef, typologyRef } from './references';
 import { coverImage, draftCover, draftSeo, list, maybe, requiredText, seo } from './shared';
+import { tolerantList } from './tolerance';
 
 const stage = z.enum(['completed', 'under_construction', 'concept']);
 
@@ -44,7 +45,7 @@ export const projectSchema = cardWire
   .extend({
     floorArea: z.number().int(),
     services: z.array(serviceRef()).min(1, 'A Project must have at least one Service'),
-    credits: z.array(creditSchema),
+    credits: tolerantList('Credit', creditSchema),
     body: bodySchema,
     seo,
   })

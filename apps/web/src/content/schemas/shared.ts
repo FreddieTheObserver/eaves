@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Collection, Draft, Figure, Image, Link, Seo, ShareImage } from '../types';
+import { tolerantList } from './tolerance';
 
 // A Page cannot use these slugs because /[slug] would shadow a route (section 10 of the design document).
 export const RESERVED_PAGE_SLUGS = ['projects', 'services', 'journal', 'studio', 'contact', 'api', 'th'] as const;
@@ -70,7 +71,8 @@ const pagination = z.object({
 // zod cannot name the output of an object whose only property is a generic schema, hence the cast.
 export const single = <T extends z.ZodType>(item: T) =>
   z.object({ data: item }).transform((response) => (response as unknown as { data: z.output<T> }).data);
-export const collection = <T extends z.ZodType>(item: T) =>
+// A broken document is dropped from the list and reported, so pagination.total can count more than items.
+export const collection = <T extends z.ZodType>(item: T, what: string) =>
   z
-    .object({ data: z.array(item), meta: z.object({ pagination }) })
+    .object({ data: tolerantList(what, item), meta: z.object({ pagination }) })
     .transform((response): Collection<z.output<T>> => ({ items: response.data, pagination: response.meta.pagination }));

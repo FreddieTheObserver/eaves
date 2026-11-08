@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Draft, SiteSettings } from '../types';
 import { draftLinkSchema, draftSeo, linkSchema, list, maybeText, requiredText, seoGroup } from './shared';
+import { tolerantList } from './tolerance';
 
 export const siteSettingsSchema = z
   .object({
@@ -8,9 +9,9 @@ export const siteSettingsSchema = z
     locale: requiredText,
     contactEmail: z.email(),
     contactLocation: maybeText,
-    socialLinks: z.array(linkSchema),
-    headerNavigation: z.array(linkSchema),
-    footerNavigation: z.array(linkSchema),
+    socialLinks: tolerantList('Social link', linkSchema),
+    headerNavigation: tolerantList('Header navigation link', linkSchema),
+    footerNavigation: tolerantList('Footer navigation link', linkSchema),
     demoNotice: requiredText,
     notFoundTitle: requiredText,
     notFoundText: requiredText,
