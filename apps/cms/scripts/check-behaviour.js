@@ -110,6 +110,81 @@ const checkPreview = async (strapi, base, token) => {
   check('the admin may frame the web app', new RegExp(`frame-src[^;]*${WEB_URL}`).test(policy), policy);
 };
 
+const checkSlugHistory = async (strapi, base, token) => {
+  const pages = strapi.documents(uidOf('page'));
+  const history = strapi.documents(uidOf('slug-history'));
+  const pathsFor = async (documentId) => (await history.findMany({ filters: { targetDocumentId: documentId } })).map((row) => row.oldPath).sort().join();
+  const rowAt = (oldPath) => history.findFirst({ filters: { oldPath } });
+  const saveSlug = (documentId, slug) => pages.update({ documentId, locale: 'en', data: { slug } });
+  const publish = (documentId) => pages.publish({ documentId, locale: 'en' });
+  const newPage = async (slug) => {
+    const { documentId } = await pages.create({ locale: 'en', data: { title: `Page ${slug}`, slug } });
+    await publish(documentId);
+    return documentId;
+  };
+  const rename = async (documentId, slug) => {
+    await saveSlug(documentId, slug);
+    await publish(documentId);
+  };
+  const admin = (route, body) =>
+    fetch(`${base}/content-manager/collection-types/${encodeURIComponent(uidOf('page'))}${route}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
+    });
+
+  const page = await newPage('first-slug');
+  check('a first publish records nothing', (await pathsFor(page)) === '');
+
+  await saveSlug(page, 'unpublished-slug');
+  check('saving a draft records nothing', (await pathsFor(page)) === '');
+
+  await rename(page, 'second-slug');
+  const row = await rowAt('/first-slug');
+  check('a published rename records the old path', row?.targetType === 'page' && row?.targetDocumentId === page, JSON.stringify(row));
+
+  await pages.update({ documentId: page, locale: 'en', data: { title: 'A new title' } });
+  await publish(page);
+  check('publishing with the same slug records nothing new', (await pathsFor(page)) === '/first-slug', await pathsFor(page));
+
+  await rename(page, 'third-slug');
+  check('every old path points at the document', (await pathsFor(page)) === '/first-slug,/second-slug', await pathsFor(page));
+
+  await rename(page, 'second-slug');
+  check('renaming back makes the path live again', (await pathsFor(page)) === '/first-slug,/third-slug', await pathsFor(page));
+  await rename(page, 'third-slug');
+  check('renaming there and back again still works', (await pathsFor(page)) === '/first-slug,/second-slug', await pathsFor(page));
+
+  const newcomer = await newPage('first-slug');
+  check('a page that takes over an old path clears its redirect', (await rowAt('/first-slug')) === null);
+
+  const moved = await newPage('held-path');
+  await history.create({ data: { oldPath: '/held-path', targetType: 'page', targetDocumentId: 'someone-else' } });
+  await rename(moved, 'free-path');
+  check('an existing record for the old path is repointed', (await rowAt('/held-path'))?.targetDocumentId === moved);
+
+  const refused = await newPage('stays-put');
+  await saveSlug(refused, 'projects');
+  const refusal = await publish(refused).then(
+    () => null,
+    (error) => error
+  );
+  check('a refused publish records nothing', refusal !== null && (await pathsFor(refused)) === '', await pathsFor(refused));
+
+  const viaAdmin = await newPage('before-admin');
+  const response = await admin(`/${viaAdmin}/actions/publish?locale=en`, { title: 'Via the admin', slug: 'after-admin' });
+  check('the admin Publish button records the old path', response.status === 200 && (await rowAt('/before-admin'))?.targetDocumentId === viaAdmin, `got ${response.status}`);
+
+  const viaBulk = await newPage('before-bulk');
+  await saveSlug(viaBulk, 'after-bulk');
+  const bulk = await admin('/actions/bulkPublish?locale=en', { documentIds: [viaBulk] });
+  check('bulk publish records the old path', bulk.status === 200 && (await rowAt('/before-bulk'))?.targetDocumentId === viaBulk, `got ${bulk.status}`);
+
+  await pages.delete({ documentId: page, locale: 'en' });
+  check('deleting a document removes its records', (await pathsFor(page)) === '', await pathsFor(page));
+  await pages.delete({ documentId: newcomer, locale: 'en' });
+};
+
 const startReceiver = () =>
   new Promise((resolve) => {
     const received = [];
@@ -179,6 +254,14 @@ const checkWebhook = async (strapi, received, reconcile) => {
   const removed = await deliveries();
   check('deleting an image sends a webhook', eventsIn(removed) === 'media.delete', eventsIn(removed));
 
+  const moved = await documents('page').create({ locale: 'en', data: { title: 'Moved', slug: 'moved-before' } });
+  await documents('page').publish({ documentId: moved.documentId, locale: 'en' });
+  await deliveries();
+  await documents('page').update({ documentId: moved.documentId, locale: 'en', data: { slug: 'moved-after' } });
+  await documents('page').publish({ documentId: moved.documentId, locale: 'en' });
+  const afterMove = await deliveries();
+  check('a slug change tells the web app about the new redirect', afterMove.some((delivery) => delivery.body.uid === uidOf('slug-history') && delivery.body.event === 'entry.create'), eventsIn(afterMove));
+
   await reconcile(strapi);
   check('a second bootstrap keeps one webhook', (await strapi.get('webhookStore').findWebhooks()).length === 1);
   const again = await documents('page').create({ locale: 'en', data: { title: 'Again', slug: 'again' } });
@@ -220,7 +303,9 @@ const run = async () => {
 
   try {
     const base = `http://127.0.0.1:${strapi.server.httpServer.address().port}`;
-    await checkPreview(strapi, base, await signIn(strapi, base));
+    const token = await signIn(strapi, base);
+    await checkPreview(strapi, base, token);
+    await checkSlugHistory(strapi, base, token);
     const { reconcileRevalidationWebhook } = require(path.join(appContext.distDir, 'src', 'webhooks'));
     await checkWebhook(strapi, received, reconcileRevalidationWebhook);
   } finally {

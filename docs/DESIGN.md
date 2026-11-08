@@ -455,7 +455,7 @@ shadcn/ui provides behaviour, not the look.
 - The S3 upload provider points at R2 in production and at MinIO locally, so development uses the same code path.
 - The preview handler in the admin configuration builds the web app's preview URL.
 - Webhooks call the web app's revalidation route.
-- A lifecycle hook records old slugs in Slug history when a published slug changes.
+- A Document Service middleware records old slugs in Slug history when a published slug changes.
 - The Inquiry create route is rate-limited by visitor IP.
 - A daily scheduled job deletes Inquiries older than 90 days.
 - A seed script loads the versioned seed content into an empty CMS.
@@ -526,6 +526,7 @@ flowchart LR
 - A behaviour check boots Strapi on a throwaway database and requests Preview links through the admin's own HTTP route, because a Preview handler registers and type-checks fine even when it builds the wrong URL.
   It reads the web app's `rules.json`, so the CMS cannot drift from the route prefixes the web app uses.
   It also receives the revalidation webhook on a local server and confirms that a publish sends exactly one, and that a draft save or an Inquiry sends none.
+  It walks a Page through a first publish, renames, a rename back, and a delete, and confirms what Slug history holds after each, including through the admin's Publish and bulk publish routes.
 - Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, the publish-rules check, the behaviour check, and a Strapi build.
 
 ## 14. Seed content
@@ -569,7 +570,7 @@ flowchart LR
 | --- | --- |
 | 0 Foundations | pnpm workspace, `apps/web` and `apps/cms` scaffolds, shared config, `.gitattributes`, `.gitignore`, `.nvmrc`, Compose with Postgres and MinIO, CI skeleton |
 | 1 Schema and contract | Every content type, component, Block, and Section in Strapi; localization and Draft and Publish flags; roles, permissions, and API tokens; zod schemas and domain types in the content module |
-| 2 CMS behaviour | Upload provider, CORS allow-list, Preview configuration, webhooks, slug history hook, Inquiry route with rate limiting, retention job, seed script and seed content |
+| 2 CMS behaviour | Upload provider, CORS allow-list, Preview configuration, webhooks, slug history middleware, Inquiry route with rate limiting, retention job, seed script and seed content |
 | 3 Web data layer | Content module queries with cache tags, revalidation route, preview route and draft mode, slug history redirects, Inquiry server action with Turnstile |
 | Smoke test | Seeded CMS to a plain, unstyled Project page, end to end, before any styling |
 | 4 Web UI | Tokens from Figma into the Tailwind theme, layout with navigation and Demo Notice from Site Settings, Blocks and Sections, every route template, filters and pagination, contact form, not-found page, metadata, sitemap, structured data |
