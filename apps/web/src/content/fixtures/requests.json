@@ -18,6 +18,7 @@
     "token": "inquiry",
     "method": "POST",
     "path": "/api/inquiries",
+    "headers": { "x-visitor-ip": "203.0.113.1" },
     "body": { "data": { "name": "Visitor", "email": "visitor@example.com", "kind": "new_project", "message": "Hello", "consent": true } }
   },
 

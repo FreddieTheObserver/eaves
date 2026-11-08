@@ -1,5 +1,5 @@
-// Boots Strapi on a throwaway database and checks CMS behaviour through the routes the admin really calls,
-// because a config handler registers and type-checks fine even when it builds the wrong URL.
+// Boots Strapi on a throwaway database and checks CMS behaviour over real HTTP: Preview links, Slug history, the
+// Inquiry rate limit, and the revalidation webhook. Each registers and type-checks fine even when it does the wrong thing.
 // The route prefixes come from apps/web/src/content/rules.json, so the CMS cannot drift from them.
 // It creates its own database on the server named by the usual DATABASE_* variables and drops it afterwards,
 // so it never touches the development database.
@@ -7,7 +7,7 @@
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
-const { Client } = require('pg')
+const { Client } = require('pg');
 const { createStrapi, compileStrapi } = require('@strapi/strapi');
 const { removeFiles, uploadImage } = require('./lib/media');
 
@@ -185,6 +185,59 @@ const checkSlugHistory = async (strapi, base, token) => {
   await pages.delete({ documentId: newcomer, locale: 'en' });
 };
 
+const checkInquiryRateLimit = async (strapi, base) => {
+  const LIMIT = 5;
+  const WINDOW_MINUTES = 10;
+  const keyOf = async (name) => {
+    const { id } = await strapi.db.query('admin::api-token').findOne({ where: { name } });
+    return (await strapi.service('admin::api-token').regenerate(id)).accessKey;
+  };
+  const [inquiryToken, readToken] = [await keyOf('Inquiry'), await keyOf('Read')];
+  const body = JSON.stringify({ data: { name: 'Visitor', email: 'visitor@example.com', kind: 'other', message: 'Hello', consent: true } });
+  const send = (ip, token = inquiryToken) =>
+    fetch(`${base}/api/inquiries`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...(ip ? { 'x-visitor-ip': ip } : {}) },
+      body,
+    });
+  const statusOf = async (ip, token) => (await send(ip, token)).status;
+  const repeat = async (times, ip, token) => {
+    const statuses = [];
+    for (let i = 0; i < times; i++) statuses.push(await statusOf(ip, token));
+    return statuses;
+  };
+  const stored = () => strapi.db.query('api::inquiry.inquiry').count();
+
+  const before = await stored();
+  check('a request without the visitor IP is refused', (await statusOf()) === 400);
+  check('a request with a malformed visitor IP is refused', (await statusOf('not-an-ip')) === 400);
+  check('a refused request creates no Inquiry', (await stored()) === before);
+
+  const allowed = await repeat(LIMIT, '203.0.113.10');
+  check('a visitor can send up to the limit', allowed.every((status) => status === 201), allowed.join());
+  const blocked = await send('203.0.113.10');
+  check('the next request from that visitor is refused', blocked.status === 429, `got ${blocked.status}`);
+  check('the refusal says when to try again', Number(blocked.headers.get('retry-after')) > 0, blocked.headers.get('retry-after') ?? 'none');
+  check('a refused request is not stored', (await stored()) === before + LIMIT);
+  check('another visitor is not affected', (await statusOf('203.0.113.11')) === 201);
+  check('an IPv6 visitor is accepted', (await statusOf('2001:db8::1')) === 201);
+
+  const wrongToken = await repeat(LIMIT + 1, '203.0.113.12', readToken);
+  check('a token that cannot create Inquiries is refused first', wrongToken.every((status) => status === 403), wrongToken.join());
+  check('and does not use up the visitor allowance', (await statusOf('203.0.113.12')) === 201);
+
+  const rows = await strapi.db.query('api::inquiry.inquiry').findMany();
+  check('the visitor IP is not stored with the Inquiry', !JSON.stringify(rows).includes('203.0.113.'));
+
+  const realNow = Date.now;
+  Date.now = () => realNow() + (WINDOW_MINUTES + 1) * 60 * 1000;
+  try {
+    check('the visitor can send again after the window', (await statusOf('203.0.113.10')) === 201);
+  } finally {
+    Date.now = realNow;
+  }
+};
+
 const startReceiver = () =>
   new Promise((resolve) => {
     const received = [];
@@ -306,6 +359,7 @@ const run = async () => {
     const token = await signIn(strapi, base);
     await checkPreview(strapi, base, token);
     await checkSlugHistory(strapi, base, token);
+    await checkInquiryRateLimit(strapi, base);
     const { reconcileRevalidationWebhook } = require(path.join(appContext.distDir, 'src', 'webhooks'));
     await checkWebhook(strapi, received, reconcileRevalidationWebhook);
   } finally {

@@ -121,7 +121,7 @@ const checkHttp = async (strapi, tokenIds) => {
   await expectStatus('Draft token fetches one draft', `/api/team-members/${doc.documentId}?status=draft`, draft, 200);
   await expectStatus('Read token cannot list Inquiries', '/api/inquiries', read, 404);
   await expectStatus('Read token cannot create an Inquiry', '/api/inquiries', read, 403, { method: 'POST', headers: json, body: inquiryBody });
-  await expectStatus('Inquiry token creates an Inquiry', '/api/inquiries', inquiry, 201, { method: 'POST', headers: json, body: inquiryBody });
+  await expectStatus('Inquiry token creates an Inquiry', '/api/inquiries', inquiry, 201, { method: 'POST', headers: { ...json, 'x-visitor-ip': '203.0.113.1' }, body: inquiryBody });
   await expectStatus('Inquiry token cannot read Inquiries', '/api/inquiries', inquiry, 404);
   await expectStatus('Inquiry token cannot read content', '/api/team-members', inquiry, 403);
   await expectStatus('A request without a token is refused', '/api/team-members', null, [401, 403]);

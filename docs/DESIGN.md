@@ -456,7 +456,8 @@ shadcn/ui provides behaviour, not the look.
 - The preview handler in the admin configuration builds the web app's preview URL.
 - Webhooks call the web app's revalidation route.
 - A Document Service middleware records old slugs in Slug history when a published slug changes.
-- The Inquiry create route is rate-limited by visitor IP.
+- The Inquiry create route allows five requests per visitor IP every ten minutes and refuses a request without the IP.
+  The web app's server action sends the IP in the `x-visitor-ip` header, and the CMS keeps it only in memory and drops it within a minute of the window ending.
 - A daily scheduled job deletes Inquiries older than 90 days.
 - A seed script loads the versioned seed content into an empty CMS.
 - A bootstrap step applies the Editor and Author permissions, empties the Public role, and creates the three API tokens.
@@ -527,6 +528,7 @@ flowchart LR
   It reads the web app's `rules.json`, so the CMS cannot drift from the route prefixes the web app uses.
   It also receives the revalidation webhook on a local server and confirms that a publish sends exactly one, and that a draft save or an Inquiry sends none.
   It walks a Page through a first publish, renames, a rename back, and a delete, and confirms what Slug history holds after each, including through the admin's Publish and bulk publish routes.
+  It sends Inquiries over real HTTP and confirms the limit per visitor IP, that a request without the IP is refused, and that the IP is not stored.
 - Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, the publish-rules check, the behaviour check, and a Strapi build.
 
 ## 14. Seed content

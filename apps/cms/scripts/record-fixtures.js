@@ -286,7 +286,7 @@ const run = async () => {
       });
       const response = await fetch(`${base}${route}${queryString ? `?${queryString}` : ''}`, {
         method: entry.method || 'GET',
-        headers: { Authorization: `Bearer ${keys[entry.token]}`, ...(entry.body ? { 'Content-Type': 'application/json' } : {}) },
+        headers: { Authorization: `Bearer ${keys[entry.token]}`, ...(entry.body ? { 'Content-Type': 'application/json' } : {}), ...(entry.headers || {}) },
         body: entry.body ? JSON.stringify(entry.body) : undefined,
       });
       const body = await response.text();
