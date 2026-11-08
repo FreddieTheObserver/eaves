@@ -27,7 +27,8 @@
         "formats": {
           "large": {
             "ext": ".png",
-            "url": "/uploads/large_silent_0000000000.png",
+            "url": "http://127.0.0.1:9000/eaves-media/large_silent_0000000000.png",
+            "etag": "7bf776f5a69fb86a54342b00b7979414",
             "hash": "large_silent_0000000000",
             "mime": "image/png",
             "name": "large_silent.png",
@@ -39,7 +40,8 @@
           },
           "small": {
             "ext": ".png",
-            "url": "/uploads/small_silent_0000000000.png",
+            "url": "http://127.0.0.1:9000/eaves-media/small_silent_0000000000.png",
+            "etag": "1f3a76d99261fe79002e506cdb78b34e",
             "hash": "small_silent_0000000000",
             "mime": "image/png",
             "name": "small_silent.png",
@@ -51,7 +53,8 @@
           },
           "medium": {
             "ext": ".png",
-            "url": "/uploads/medium_silent_0000000000.png",
+            "url": "http://127.0.0.1:9000/eaves-media/medium_silent_0000000000.png",
+            "etag": "f7adf4313dfa4a772bc4024a00120f40",
             "hash": "medium_silent_0000000000",
             "mime": "image/png",
             "name": "medium_silent.png",
@@ -63,7 +66,8 @@
           },
           "thumbnail": {
             "ext": ".png",
-            "url": "/uploads/thumbnail_silent_0000000000.png",
+            "url": "http://127.0.0.1:9000/eaves-media/thumbnail_silent_0000000000.png",
+            "etag": "dd7048191b8357693ecd0aaca25b2da2",
             "hash": "thumbnail_silent_0000000000",
             "mime": "image/png",
             "name": "thumbnail_silent.png",
@@ -78,9 +82,9 @@
         "ext": ".png",
         "mime": "image/png",
         "size": 0,
-        "url": "/uploads/silent_0000000000.png",
+        "url": "http://127.0.0.1:9000/eaves-media/silent_0000000000.png",
         "previewUrl": null,
-        "provider": "local",
+        "provider": "aws-s3",
         "provider_metadata": null,
         "createdAt": "2026-01-01T00:00:00.000Z",
         "updatedAt": "2026-01-01T00:00:00.000Z",

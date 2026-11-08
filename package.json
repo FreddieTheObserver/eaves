@@ -13,8 +13,9 @@
     "check:access": "pnpm --filter @eaves/cms check:access",
     "check:publish": "pnpm --filter @eaves/cms check:publish",
     "record:fixtures": "pnpm --filter @eaves/cms record:fixtures",
+    "storage:init": "pnpm --filter @eaves/cms storage:init",
     "test": "pnpm --recursive --if-present run test",
-    "docker:up": "docker compose up -d",
+    "docker:up": "docker compose up -d && pnpm storage:init",
     "docker:down": "docker compose down"
   },
   "packageManager": "pnpm@10.33.0"

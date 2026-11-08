@@ -276,9 +276,10 @@ describe('what the schemas add to what Strapi checks', () => {
 
   it('accepts a relative and an absolute media URL', () => {
     const project = loadFixture('project-published');
-    const absolute = change(project, ['data', 0, 'cover', 'url'], 'https://media.example.com/uploads/linden.png');
-    expect(valueOf(parseContent(projects, absolute)).items[0].cover.url).toBe('https://media.example.com/uploads/linden.png');
-    expect(valueOf(parseContent(projects, project)).items[0].cover.url).toMatch(/^\/uploads\//);
+    for (const url of ['/uploads/linden.png', 'https://media.example.com/uploads/linden.png']) {
+      const parsed = parseContent(projects, change(project, ['data', 0, 'cover', 'url'], url));
+      expect(valueOf(parsed).items[0].cover.url).toBe(url);
+    }
   });
 
   it('drops a Text Block holding a rich text image node, because the Image Block carries the alt text', () => {

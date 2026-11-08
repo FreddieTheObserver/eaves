@@ -23,8 +23,8 @@ const png = (width, height, [r, g, b]) => {
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', header), chunk('IDAT', pixels), chunk('IEND', Buffer.alloc(0))]);
 };
 
-// Uploads a solid-colour image through the upload plugin and returns the stored file. The local provider
-// writes under apps/cms/public/uploads, so the caller removes what it uploaded when it is done.
+// Uploads a solid-colour image through the upload plugin and returns the stored file. It lands in the
+// media bucket, so the caller removes what it uploaded when it is done.
 const uploadImage = async (strapi, key, { color = [200, 200, 200], width = 1200, height = 800, alternativeText } = {}) => {
   const filepath = path.join(os.tmpdir(), `eaves-${process.pid}-${key}.png`);
   const buffer = png(width, height, color);

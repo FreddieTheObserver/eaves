@@ -46,7 +46,7 @@ describe('domain types', () => {
       year: 2025,
       floorArea: 220,
       stage: 'completed',
-      cover: { url: expect.stringMatching(/^\/uploads\//), width: 1200, height: 800, alt: 'A sunlit living room with oak shelving' },
+      cover: { url: read(loadFixture('project-published'), ['data', 0, 'cover', 'url']), width: 1200, height: 800, alt: 'A sunlit living room with oak shelving' },
       typology: { name: 'Residential', slug: 'residential' },
       services: [{ name: 'Residential Interior Design', slug: 'residential-interior-design' }],
       credits: [

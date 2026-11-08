@@ -33,7 +33,25 @@ const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Plugin =>
     },
   },
   upload: {
-    config: {
+      config: {
+        provider: 'aws-s3',
+        providerOptions: {
+          baseUrl: env('S3_PUBLIC_URL'),
+          s3Options: {
+            endpoint: env('S3_ENDPOINT'),
+            region: env('S3_REGION'),
+            forcePathStyle: true,
+            credentials: {
+            accessKeyId: env('S3_ACCESS_KEY_ID'),
+            secretAccessKey: env('S3_SECRET_ACCESS_KEY'),
+          },
+          params: {
+            // The key must stay: without it the provider sends public-read, and R2 has no ACLs.
+            ACL: undefined,
+            Bucket: env('S3_BUCKET'),
+          },
+        },
+      },
       security: {
         allowedTypes: allowedMediaTypes,
         deniedTypes,
