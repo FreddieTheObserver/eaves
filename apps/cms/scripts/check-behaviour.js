@@ -1,5 +1,6 @@
 // Boots Strapi on a throwaway database and checks CMS behaviour over real HTTP: Preview links, Slug history, the
-// Inquiry rate limit, and the revalidation webhook. Each registers and type-checks fine even when it does the wrong thing.
+// Inquiry rate limit and retention job, and the revalidation webhook. Each registers and type-checks fine even when it
+// does the wrong thing.
 // The route prefixes come from apps/web/src/content/rules.json, so the CMS cannot drift from them.
 // It creates its own database on the server named by the usual DATABASE_* variables and drops it afterwards,
 // so it never touches the development database.
@@ -238,6 +239,38 @@ const checkInquiryRateLimit = async (strapi, base) => {
   }
 };
 
+const checkRetention = async (strapi, deleteExpiredInquiries) => {
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const inquiries = strapi.db.query(uidOf('inquiry'));
+  const inquiryFrom = async (createdAt) => {
+    const { id } = await inquiries.create({ data: { name: 'Visitor', email: 'visitor@example.com', kind: 'other', message: 'Hello', consent: true } });
+    await strapi.db.connection('inquiries').where({ id }).update({ created_at: createdAt });
+    return id;
+  };
+  const daysAgo = (days) => new Date(Date.now() - days * DAY_MS);
+  const exists = async (id) => (await inquiries.count({ where: { id } })) === 1;
+
+  const job = strapi.cron.jobs.find(({ name }) => name === 'deleteExpiredInquiries');
+  check('the retention job is scheduled', Boolean(job));
+  check('it runs at 03:00 Bangkok time', job?.job.nextInvocation()?.getUTCHours() === 20, String(job?.job.nextInvocation()));
+
+  const expired = await inquiryFrom(daysAgo(91));
+  const recent = await inquiryFrom(daysAgo(89));
+  const today = await inquiryFrom(new Date());
+  await job?.job.invoke();
+  check('the scheduled job deletes an Inquiry older than 90 days', !(await exists(expired)));
+  check('it keeps an Inquiry younger than 90 days', await exists(recent));
+  check('it keeps an Inquiry from today', await exists(today));
+
+  const now = new Date();
+  const edge = await inquiryFrom(new Date(now.getTime() - 90 * DAY_MS));
+  const pastEdge = await inquiryFrom(new Date(now.getTime() - 90 * DAY_MS - 1));
+  const deleted = await deleteExpiredInquiries(strapi, now);
+  check('exactly 90 days old is kept', await exists(edge));
+  check('one moment past 90 days is deleted', !(await exists(pastEdge)) && deleted === 1, `deleted ${deleted}`);
+  check('running again deletes nothing more', (await deleteExpiredInquiries(strapi, now)) === 0);
+};
+
 const startReceiver = () =>
   new Promise((resolve) => {
     const received = [];
@@ -360,6 +393,8 @@ const run = async () => {
     await checkPreview(strapi, base, token);
     await checkSlugHistory(strapi, base, token);
     await checkInquiryRateLimit(strapi, base);
+    const { deleteExpiredInquiries } = require(path.join(appContext.distDir, 'src', 'retention'));
+    await checkRetention(strapi, deleteExpiredInquiries);
     const { reconcileRevalidationWebhook } = require(path.join(appContext.distDir, 'src', 'webhooks'));
     await checkWebhook(strapi, received, reconcileRevalidationWebhook);
   } finally {

@@ -1,6 +1,7 @@
 import type { Core } from '@strapi/strapi';
+import { deleteExpiredInquiries } from '../src/retention';
 
-const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Server => ({
+const config =({ env }: Core.Config.Shared.ConfigParams): Core.Config.Server => ({
   host: env('HOST', '0.0.0.0'),
   port: env.int('PORT', 1337),
   app: {
@@ -8,6 +9,15 @@ const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Server =>
   },
   webhooks: {
     populateRelations: env.bool('WEBHOOKS_POPULATE_RELATIONS', false),
+  },
+  cron: {
+    enabled: true,
+    tasks: {
+      deleteExpiredInquiries: {
+        task: ({ strapi }) => deleteExpiredInquiries(strapi),
+        options: { rule: '0 3 * * *', tz: 'Asia/Bangkok' },
+      },
+    },
   },
 });
 
