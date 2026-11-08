@@ -469,8 +469,8 @@ shadcn/ui provides behaviour, not the look.
   A Service or Byline person who is not published yet, next to one who is, does not block, and is left out of the page.
 - A Selected Projects rule refuses to publish the Home or Studio page while a Selected Projects Section has fewer than three or more than six published Projects.
 - A slug rule refuses to publish a Page with a reserved slug, whatever its case.
-- The reserved slugs and the Selected Projects bounds live in the web app's `rules.json`.
-  The CMS cannot import the web app at runtime, so it repeats them, and the publish-rules check fails when the two differ.
+- The reserved slugs, the Selected Projects bounds, and the route prefixes live in the web app's `rules.json`.
+  The CMS cannot import the web app at runtime, so it repeats them, and the publish-rules and behaviour checks fail when the two differ.
 - The rules still let some broken content through: text of only spaces, a rich text image node, alt text cleared in the Media Library after publishing, bulk unpublish (below), and anything written around the Document Service, such as a transfer or a seed.
   The web app drops what gets through (section 10).
 - A dependency rule refuses to unpublish or delete a document that published pages still depend on.
@@ -523,7 +523,9 @@ flowchart LR
 - An access check boots Strapi on a throwaway database and tests the roles, the tokens, the draft gate, and CORS over real HTTP, because the gate registers and type-checks fine even when it lets every request through.
 - A publish-rules check boots Strapi on a throwaway database and presses Publish, Unpublish, bulk unpublish, and Delete as a signed-in Super Admin over the admin's own HTTP routes, because the publish and dependency rules register and type-check fine even when the admin's buttons never reach them.
   It reads the web app's `rules.json`, so the CMS cannot drift from the bounds and reserved slugs the web app enforces.
-- Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, the publish-rules check, and a Strapi build.
+- A behaviour check boots Strapi on a throwaway database and requests Preview links through the admin's own HTTP route, because a Preview handler registers and type-checks fine even when it builds the wrong URL.
+  It reads the web app's `rules.json`, so the CMS cannot drift from the route prefixes the web app uses.
+- Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, the publish-rules check, the behaviour check, and a Strapi build.
 
 ## 14. Seed content
 

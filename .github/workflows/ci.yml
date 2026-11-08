@@ -30,6 +30,8 @@ jobs:
       S3_ACCESS_KEY_ID: minioadmin
       S3_SECRET_ACCESS_KEY: minioadmin
       S3_PUBLIC_URL: http://127.0.0.1:9000/eaves-media
+      WEB_URL: http://localhost:3000
+      PREVIEW_SECRET: ci-preview-secret
     services:
       postgres:
         image: postgres:16-alpine
@@ -90,3 +92,6 @@ jobs:
 
       - name: Check publish rules
         run: pnpm check:publish
+
+      - name: Check behaviour
+        run: pnpm check:behaviour

@@ -16,6 +16,7 @@
     "check:schema": "node scripts/check-schema.js",
     "check:access": "node scripts/check-access.js",
     "check:publish": "node scripts/check-publish-rules.js",
+    "check:behaviour": "node scripts/check-behaviour.js",
     "record:fixtures": "node scripts/record-fixtures.js",
     "storage:init": "node scripts/init-storage.js"
   },

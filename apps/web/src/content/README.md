@@ -13,8 +13,8 @@ Pages and components import the types from `types.ts` and never see a Strapi res
   The lenient schema reads a draft and refuses nothing a draft can legitimately lack.
   Both turn the Strapi response into the domain type.
 - `schemas/tolerance.ts` keeps one broken item from taking down the page that shows it, as described below.
-- `rules.json` holds the reserved Page slugs and the Selected Projects bounds.
-  The CMS repeats them in its publish rules, and its publish-rules check fails when the two differ.
+- `rules.json` holds the reserved Page slugs, the Selected Projects bounds, and the route prefixes.
+  The CMS repeats them, and its publish-rules and behaviour checks fail when the two differ.
 - `populate.json` holds the populate for each kind of request.
   A schema is only valid for a response fetched with its populate, so the queries added in layer 3 must use these.
   A missing populate makes the strict schema fail rather than read as empty content.

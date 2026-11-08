@@ -1,4 +1,5 @@
 {
   "reservedPageSlugs": ["projects", "services", "journal", "studio", "contact", "api", "th"],
-  "selectedProjects": { "min": 3, "max": 6 }
+  "selectedProjects": { "min": 3, "max": 6 },
+  "routes": { "project": "/projects/", "service": "/services/", "article": "/journal/", "page": "/" }
 }
