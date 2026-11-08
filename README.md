@@ -25,14 +25,18 @@ You need Docker, the Node version in `.nvmrc`, and pnpm 10.
 1. Install dependencies with `pnpm install`.
 2. Copy `apps/cms/.env.example` to `apps/cms/.env` and replace the placeholder secrets with random values.
 3. Start Postgres and MinIO with `pnpm docker:up`.
-4. Start both apps with `pnpm dev`.
+4. Load the sample content with `pnpm seed`.
+5. Start both apps with `pnpm dev`.
 
 The web app runs at http://localhost:3000.
 The Strapi admin runs at http://localhost:1337/admin.
 
+`pnpm seed` only loads into an empty CMS.
+To start again, run `docker compose down -v`, which deletes the local database and bucket, and then repeat steps 3 and 4.
+
 `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build` run the same checks as CI.
-`pnpm check:schema`, `pnpm check:access`, `pnpm check:publish`, and `pnpm check:behaviour` do too, and need Postgres and MinIO running.
-`pnpm record:fixtures` also needs Postgres.
+`pnpm check:schema`, `pnpm check:access`, `pnpm check:publish`, `pnpm check:behaviour`, and `pnpm check:seed` do too, and need Postgres and MinIO running.
+`pnpm record:fixtures` also needs Postgres and MinIO.
 It re-records the Strapi responses that the web app's tests read, and is run by hand whenever a content type changes.
 
 ## Documentation

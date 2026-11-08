@@ -93,5 +93,8 @@ jobs:
       - name: Check publish rules
         run: pnpm check:publish
 
+      - name: Check seed
+        run: pnpm check:seed
+
       - name: Check behaviour
         run: pnpm check:behaviour

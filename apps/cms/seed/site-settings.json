@@ -1,0 +1,24 @@
+{
+  "contactEmail": "hello@eaves.layaungphyo.dev",
+  "contactLocation": "Bangkok, Thailand",
+  "socialLinks": [],
+  "headerNavigation": [
+    { "label": "Projects", "href": "/projects" },
+    { "label": "Design services", "href": "/services" },
+    { "label": "Journal", "href": "/journal" },
+    { "label": "Studio", "href": "/studio" },
+    { "label": "Contact", "href": "/contact" }
+  ],
+  "footerNavigation": [
+    { "label": "Privacy", "href": "/privacy" },
+    { "label": "About this demo", "href": "/about-this-demo" }
+  ],
+  "demoNotice": "Eaves is a fictional studio. Its people, projects and contact details are invented, and every image on this site is AI-generated.",
+  "notFoundTitle": "This page has moved or never existed",
+  "notFoundText": "The address you followed does not lead anywhere on this site. The Projects and Journal pages are good places to start again.",
+  "defaultSeo": {
+    "metaTitle": "Eaves, a fictional Bangkok design studio",
+    "metaDescription": "Eaves is a fictional Bangkok architecture and interior design studio, invented for a portfolio demo. Its people, projects and images are not real.",
+    "shareImage": "default-share.jpg"
+  }
+}

@@ -472,7 +472,7 @@ shadcn/ui provides behaviour, not the look.
 - A slug rule refuses to publish a Page with a reserved slug, whatever its case.
 - The reserved slugs, the Selected Projects bounds, and the route prefixes live in the web app's `rules.json`.
   The CMS cannot import the web app at runtime, so it repeats them, and the publish-rules and behaviour checks fail when the two differ.
-- The rules still let some broken content through: text of only spaces, a rich text image node, alt text cleared in the Media Library after publishing, bulk unpublish (below), and anything written around the Document Service, such as a transfer or a seed.
+- The rules still let some broken content through: text of only spaces, a rich text image node, alt text cleared in the Media Library after publishing, bulk unpublish (below), and anything written around the Document Service, such as a transfer.
   The web app drops what gets through (section 10).
 - A dependency rule refuses to unpublish or delete a document that published pages still depend on.
   Strapi removes an unpublished or deleted document from the published relations that point at it, so the rule finds the published documents that would be left breaking a content rule of the web app.
@@ -483,6 +483,25 @@ shadcn/ui provides behaviour, not the look.
   A relation the web app does not require, such as a Quote speaker, a related Project, or one person among several in a Byline, does not block, so unpublishing it removes it from those pages without a word.
   Bulk unpublish checks each document while the others are still published, so unpublishing two featured Projects together can pass a check that each would fail alone.
   The web app then drops the Section rather than failing the Home page (section 10).
+
+### Contract with the web data layer
+
+Layer 3 builds against these, and each is covered by a CMS check.
+
+- Revalidation: the CMS sends a `POST` to `REVALIDATE_URL` with the header `Authorization: Bearer <REVALIDATE_SECRET>`.
+  Content sends `{ event, createdAt, model, uid, entry }` and media sends `{ event, createdAt, media }`.
+  A delete can send one event for each stored row, so the route must tolerate repeats.
+  Strapi sends each webhook once and does not retry.
+- Preview: the admin opens `<WEB_URL>/api/preview` with the query parameters `url`, `secret`, and `status`, which is `draft` or `published`.
+  `url` is a path that needs decoding, and `secret` is `PREVIEW_SECRET`.
+- Inquiry: the server action posts to `/api/inquiries` with the Inquiry token and the visitor's IP in the `x-visitor-ip` header, taken from the first address in `x-forwarded-for`.
+  A missing or invalid IP gets a 400, and a sixth request within ten minutes gets a 429 with `Retry-After`.
+  Local development has no forwarded address, so the action needs a fallback, and all local submissions then share one limit.
+- Slug history: `oldPath` is a full path such as `/projects/old-slug`, and `targetType` and `targetDocumentId` name the document it now points to.
+  The lookup must confirm that the document is published and answer 404 if it is not, because unpublishing keeps its records.
+- Routes: the prefix for each type with a slug is in `rules.json`.
+- Media: image URLs are absolute and start with `S3_PUBLIC_URL`, so `next/image` must allow that host.
+  Locally it is `http://127.0.0.1:9000/eaves-media`, and in production it is `https://media.eaves.layaungphyo.dev`.
 
 ### Security
 
@@ -530,7 +549,10 @@ flowchart LR
   It walks a Page through a first publish, renames, a rename back, and a delete, and confirms what Slug history holds after each, including through the admin's Publish and bulk publish routes.
   It sends Inquiries over real HTTP and confirms the limit per visitor IP, that a request without the IP is refused, and that the IP is not stored.
   It runs the scheduled retention job against backdated Inquiries and confirms which ones are deleted.
-- Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, the publish-rules check, the behaviour check, and a Strapi build.
+- A seed check boots Strapi on a throwaway database, loads the seed, and reads it back over real HTTP through the web app's strict schemas, failing if anything is dropped, because a broken item and an unpublished relation both disappear without an error.
+  It also confirms that a seed failing halfway leaves nothing behind and that a second run is refused.
+- A unit test checks the seed files against this section and ADR 0002, so editing the copy cannot quietly break them.
+- Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, the publish-rules check, the behaviour check, the seed check, and a Strapi build.
 
 ## 14. Seed content
 
@@ -545,10 +567,14 @@ flowchart LR
 | Single types | Home page, Studio page, and Site Settings, fully filled in |
 
 The seed is versioned files in `apps/cms/seed/`, holding data and images, loaded by a script into an empty CMS.
+The script saves drafts and publishes them through the Document Service, so the publish rules check the seed like any other content.
 It feeds local development, CI, and the first production load.
 After launch, production content lives only in production and its backups, and the seed never runs there again.
 Copy is drafted during the build and edited by the developer.
 Images come from one AI image tool working from a single art-direction brief, chosen during the Figma pass, and the original files carry the IPTC marker for AI-generated media.
+Until then the seed holds solid-colour placeholders under their final filenames, and `apps/cms/seed/images.json` doubles as the brief, so the placeholders must be replaced before the first production load.
+The CMS image must include `scripts/` and `seed/` so the script can run on the server, and the first load must use production's `S3_PUBLIC_URL`, because each image's URL is stored when it is uploaded.
+`strapi build` reads the configuration, so the image build needs valid values for `S3_PUBLIC_URL` and `WEB_URL`.
 Any invented business name is checked against real Bangkok practices before use (ADR 0002).
 The About this demo page explains the project, states that the Studio holds no professional licences, and links the screen recording of the CMS.
 
@@ -602,4 +628,10 @@ These choices were made while writing this document rather than in the interview
 - Run the Thailand signup checks for Hetzner and R2 before creating either account.
 - Create the public `FreddieTheObserver/eaves` repository when the first code lands.
 - Pick typefaces and the AI image tool during the Figma pass.
-- Choose the Studio's contact email address on `layaungphyo.dev`.
+- Choose the Studio's contact email address on `layaungphyo.dev`, and set up a monitored inbox for it, because the Privacy page sends data requests there.
+  The seed uses `hello@eaves.layaungphyo.dev` until then, in `site-settings.json` and the Privacy page.
+- Replace the seed's placeholder images, and check its invented Team Member names, before the first production load.
+- Confirm in layer 5 that the first upload to R2 works without an ACL, which can only be tested against R2.
+- Add an R2 CORS rule for the CMS origin, so the admin's Download button works.
+- Set `CORS_ORIGINS` to `https://eaves.layaungphyo.dev` in production.
+- Revalidate every page after the first production load, because the seed command can exit before its webhooks are delivered.

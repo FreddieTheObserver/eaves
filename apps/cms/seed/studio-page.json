@@ -1,0 +1,39 @@
+{
+  "sections": [
+    {
+      "type": "statement",
+      "text": "A small studio that designs for the climate it works in, and leaves the building to those who do it best.",
+      "image": "studio-statement.jpg"
+    },
+    {
+      "type": "figures",
+      "heading": "The Studio in numbers",
+      "items": [
+        { "value": "11", "label": "Years in practice" },
+        { "value": "10", "label": "People in the Studio" },
+        { "value": "5", "label": "Design services" }
+      ]
+    },
+    {
+      "type": "team",
+      "heading": "The people",
+      "intro": "Designers, all of them. The Studio claims no professional licence, and works with the engineers and contractors each client appoints."
+    },
+    {
+      "type": "services-overview",
+      "heading": "Design services",
+      "intro": "We take on a small number of projects each year, across five services."
+    },
+    {
+      "type": "contact-prompt",
+      "heading": "Start a conversation",
+      "text": "Eaves is a fictional studio, but the form works and a real person reads it.",
+      "linkLabel": "Send an inquiry"
+    }
+  ],
+  "seo": {
+    "metaTitle": "The Studio | Eaves, a fictional studio",
+    "metaDescription": "Eaves is a fictional Bangkok design studio, invented for a portfolio demo. This page presents its invented approach and people.",
+    "shareImage": "studio-statement.jpg"
+  }
+}

@@ -41,6 +41,22 @@ const uploadImage = async (strapi, key, { color = [200, 200, 200], width = 1200,
   }
 };
 
+// Uploads a file from the repository. The upload plugin is handed a copy, so the versioned original is never removed.
+const uploadFile = async (strapi, sourcePath, alternativeText) => {
+  const name = path.basename(sourcePath);
+  const filepath = path.join(os.tmpdir(), `eaves-${process.pid}-${name}`);
+  fs.copyFileSync(sourcePath, filepath);
+  try {
+    const [file] = await strapi.plugin('upload').service('upload').upload({
+      data: { fileInfo: { name, alternativeText } },
+      files: { filepath, originalFilename: name, mimetype: 'image/jpeg', size: fs.statSync(filepath).size },
+    });
+    return file;
+  } finally {
+    fs.rmSync(filepath, { force: true });
+  }
+};
+
 const removeFiles = async (strapi, files) => {
   for (const file of files) {
     try {
@@ -51,4 +67,4 @@ const removeFiles = async (strapi, files) => {
   }
 };
 
-module.exports = { png, uploadImage, removeFiles };
+module.exports = { png, uploadFile, uploadImage, removeFiles };

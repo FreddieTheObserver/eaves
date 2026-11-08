@@ -1,0 +1,92 @@
+[
+  {
+    "title": "Why lime plaster suits a wet season",
+    "slug": "lime-plaster-wet-season",
+    "excerpt": "Bangkok's walls spend months damp. Lime lets them dry out again, which is why it keeps turning up in our specifications.",
+    "cover": "article-lime-plaster-cover.jpg",
+    "topic": "material",
+    "byline": ["mali"],
+    "relatedProjects": ["shophouse-talat-noi"],
+    "publicationDate": "2026-10-14",
+    "seo": {
+      "metaTitle": "Why lime plaster suits a wet season | Eaves, a fictional studio",
+      "metaDescription": "An invented article from Eaves, a fictional Bangkok studio, on how lime plaster behaves in a damp climate. Part of a portfolio demo.",
+      "shareImage": "article-lime-plaster-cover.jpg"
+    }
+  },
+  {
+    "title": "Drawing the shade first",
+    "slug": "drawing-the-shade-first",
+    "excerpt": "Before a house has rooms, we draw where its shadow falls at noon in April. Most of the plan follows from that drawing.",
+    "cover": "article-shade-cover.jpg",
+    "topic": "process",
+    "byline": ["krit", "narin"],
+    "relatedProjects": ["courtyard-house-ari", "hillside-house-chiang-mai"],
+    "publicationDate": "2026-09-02",
+    "seo": {
+      "metaTitle": "Drawing the shade first | Eaves, a fictional studio",
+      "metaDescription": "An invented article from Eaves, a fictional Bangkok studio, on starting a house from its shadow. Part of a portfolio demo.",
+      "shareImage": "article-shade-cover.jpg"
+    }
+  },
+  {
+    "title": "Teak, and what to use instead",
+    "slug": "teak-and-what-to-use-instead",
+    "excerpt": "Teak is beautiful and often the wrong choice. Here is how we decide when it earns its place, and what we reach for when it does not.",
+    "cover": "article-teak-cover.jpg",
+    "topic": "material",
+    "byline": ["ploy"],
+    "relatedProjects": ["courtyard-house-ari", "river-apartment-khlong-san"],
+    "publicationDate": "2026-07-21",
+    "seo": {
+      "metaTitle": "Teak, and what to use instead | Eaves, a fictional studio",
+      "metaDescription": "An invented article from Eaves, a fictional Bangkok studio, on choosing timber for interiors. Part of a portfolio demo.",
+      "shareImage": "article-teak-cover.jpg"
+    }
+  },
+  {
+    "title": "Working with the people who build",
+    "slug": "working-with-the-people-who-build",
+    "excerpt": "The Studio designs and does not build. That makes the engineers and contractors a client appoints the most important people we meet.",
+    "cover": "article-people-who-build-cover.jpg",
+    "topic": "studio-news",
+    "byline": ["nok"],
+    "relatedProjects": ["noodle-counter-yaowarat"],
+    "publicationDate": "2026-05-30",
+    "seo": {
+      "metaTitle": "Working with the people who build | Eaves, a fictional studio",
+      "metaDescription": "An invented article from Eaves, a fictional Bangkok studio, on working with appointed engineers and contractors. Part of a portfolio demo.",
+      "shareImage": "article-people-who-build-cover.jpg"
+    }
+  },
+  {
+    "title": "What a site visit is for",
+    "slug": "what-a-site-visit-is-for",
+    "excerpt": "We go to measure, and we stay to watch. An afternoon on a street tells you what a survey cannot.",
+    "cover": "article-site-visit-cover.jpg",
+    "topic": "process",
+    "byline": ["sirin"],
+    "relatedProjects": ["noodle-counter-yaowarat", "corner-coffee-bar-ari"],
+    "publicationDate": "2026-03-12",
+    "seo": {
+      "metaTitle": "What a site visit is for | Eaves, a fictional studio",
+      "metaDescription": "An invented article from Eaves, a fictional Bangkok studio, on what designers learn by watching a street. Part of a portfolio demo.",
+      "shareImage": "article-site-visit-cover.jpg"
+    }
+  },
+  {
+    "title": "A quieter studio, on purpose",
+    "slug": "a-quieter-studio",
+    "excerpt": "We decided to stay small. Here is what that means for the projects we take on and the way we spend a working day.",
+    "cover": "article-quieter-studio-cover.jpg",
+    "topic": "studio-news",
+    "byline": ["narin"],
+    "relatedProjects": [],
+    "publicationDate": "2026-01-20",
+    "seo": {
+      "metaTitle": "A quieter studio, on purpose | Eaves, a fictional studio",
+      "metaDescription": "An invented article from Eaves, a fictional Bangkok studio, on deciding to stay small. Part of a portfolio demo.",
+      "shareImage": "article-quieter-studio-cover.jpg"
+    }
+  }
+]

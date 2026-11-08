@@ -1,0 +1,48 @@
+{
+  "sections": [
+    {
+      "type": "statement",
+      "text": "We design for the heat and the rain first. The rooms follow.",
+      "image": "home-statement.jpg"
+    },
+    {
+      "type": "selected-projects",
+      "heading": "Selected projects",
+      "projects": [
+        "courtyard-house-ari",
+        "corner-coffee-bar-ari",
+        "shophouse-talat-noi",
+        "office-silom",
+        "river-apartment-khlong-san",
+        "hillside-house-chiang-mai"
+      ]
+    },
+    {
+      "type": "services-overview",
+      "heading": "Design services",
+      "intro": "Five services for houses, shops and workplaces. We design, and the engineers and contractors you appoint build."
+    },
+    {
+      "type": "studio-introduction",
+      "heading": "A small studio in Bangkok",
+      "text": "Eaves is named for the overhanging edge of a roof, the part that keeps walls cool and monsoon rain off the windows. It is a reminder to design for the climate we are in.",
+      "image": "home-studio-introduction.jpg",
+      "linkLabel": "About the Studio"
+    },
+    {
+      "type": "latest-articles",
+      "heading": "From the Journal"
+    },
+    {
+      "type": "contact-prompt",
+      "heading": "Tell us about your space",
+      "text": "Eaves is a fictional studio, but the form works and a real person reads it.",
+      "linkLabel": "Send an inquiry"
+    }
+  ],
+  "seo": {
+    "metaTitle": "Eaves, a fictional Bangkok design studio",
+    "metaDescription": "Eaves is a fictional Bangkok architecture and interior design studio, invented for a portfolio demo. Its people, projects and images are not real.",
+    "shareImage": "default-share.jpg"
+  }
+}

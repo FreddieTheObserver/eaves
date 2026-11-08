@@ -1,0 +1,179 @@
+[
+  {
+    "title": "Courtyard House in Ari",
+    "slug": "courtyard-house-ari",
+    "summary": "A family house arranged around a planted court, with deep eaves that keep the walls cool and the windows open in the rain.",
+    "cover": "courtyard-house-ari-cover.jpg",
+    "typology": "residential",
+    "services": ["architectural-design", "residential-interior-design"],
+    "neighbourhood": "Ari",
+    "city": "Bangkok",
+    "year": 2025,
+    "floorArea": 320,
+    "stage": "completed",
+    "credits": [
+      { "role": "Lead designer", "teamMember": "krit" },
+      { "role": "Architectural designer", "teamMember": "thanawat" },
+      { "role": "Interior designer", "teamMember": "mali" }
+    ],
+    "seo": {
+      "metaTitle": "Courtyard House in Ari | Eaves, a fictional studio",
+      "metaDescription": "A fictional project by Eaves, an invented Bangkok studio: a family house around a planted court, shown as a portfolio demo.",
+      "shareImage": "courtyard-house-ari-cover.jpg"
+    }
+  },
+  {
+    "title": "River Apartment in Khlong San",
+    "slug": "river-apartment-khlong-san",
+    "summary": "A condominium opened up towards the river, with a single run of timber joinery holding everything a couple owns.",
+    "cover": "river-apartment-khlong-san-cover.jpg",
+    "typology": "residential",
+    "services": ["residential-interior-design"],
+    "neighbourhood": "Khlong San",
+    "city": "Bangkok",
+    "year": 2024,
+    "floorArea": 145,
+    "stage": "completed",
+    "credits": [
+      { "role": "Design director", "teamMember": "ploy" },
+      { "role": "Interior designer", "teamMember": "mali" }
+    ],
+    "seo": {
+      "metaTitle": "River Apartment in Khlong San | Eaves, a fictional studio",
+      "metaDescription": "A fictional project by Eaves, an invented Bangkok studio: a condominium interior facing the river, shown as a portfolio demo.",
+      "shareImage": "river-apartment-khlong-san-cover.jpg"
+    }
+  },
+  {
+    "title": "Shophouse Renovation in Talat Noi",
+    "slug": "shophouse-talat-noi",
+    "summary": "A narrow shophouse reworked around a new lightwell, keeping its old walls and letting air move through all four floors.",
+    "cover": "shophouse-talat-noi-cover.jpg",
+    "typology": "residential",
+    "services": ["renovation-space-planning", "residential-interior-design"],
+    "neighbourhood": "Talat Noi",
+    "city": "Bangkok",
+    "year": 2023,
+    "floorArea": 210,
+    "stage": "completed",
+    "credits": [
+      { "role": "Lead designer", "teamMember": "krit" },
+      { "role": "Interior designer", "teamMember": "sirin" }
+    ],
+    "seo": {
+      "metaTitle": "Shophouse Renovation in Talat Noi | Eaves, a fictional studio",
+      "metaDescription": "A fictional project by Eaves, an invented Bangkok studio: a shophouse renovation built around a lightwell, shown as a portfolio demo.",
+      "shareImage": "shophouse-talat-noi-cover.jpg"
+    }
+  },
+  {
+    "title": "Corner Coffee Bar in Ari",
+    "slug": "corner-coffee-bar-ari",
+    "summary": "A small coffee bar on a street corner, with one long counter and a bench that follows the shade.",
+    "cover": "corner-coffee-bar-ari-cover.jpg",
+    "typology": "commercial",
+    "services": ["commercial-interior-design"],
+    "neighbourhood": "Ari",
+    "city": "Bangkok",
+    "year": 2024,
+    "floorArea": 85,
+    "stage": "completed",
+    "credits": [
+      { "role": "Lead designer", "teamMember": "sirin" },
+      { "role": "Design coordination", "teamMember": "nok" }
+    ],
+    "seo": {
+      "metaTitle": "Corner Coffee Bar in Ari | Eaves, a fictional studio",
+      "metaDescription": "A fictional project by Eaves, an invented Bangkok studio: a small coffee bar with one long counter, shown as a portfolio demo.",
+      "shareImage": "corner-coffee-bar-ari-cover.jpg"
+    }
+  },
+  {
+    "title": "Noodle Counter in Yaowarat",
+    "slug": "noodle-counter-yaowarat",
+    "summary": "An old shopfront being reworked into a counter of twelve stools, now being built by others to the Studio's design.",
+    "cover": "noodle-counter-yaowarat-cover.jpg",
+    "typology": "commercial",
+    "services": ["commercial-interior-design", "renovation-space-planning"],
+    "neighbourhood": "Yaowarat",
+    "city": "Bangkok",
+    "year": 2026,
+    "floorArea": 60,
+    "stage": "under_construction",
+    "credits": [
+      { "role": "Lead designer", "teamMember": "sirin" },
+      { "role": "Design coordination", "teamMember": "nok" }
+    ],
+    "seo": {
+      "metaTitle": "Noodle Counter in Yaowarat | Eaves, a fictional studio",
+      "metaDescription": "A fictional project by Eaves, an invented Bangkok studio: a twelve-stool counter in an old shopfront, shown as a portfolio demo.",
+      "shareImage": "noodle-counter-yaowarat-cover.jpg"
+    }
+  },
+  {
+    "title": "Lighting Showroom in Sathorn",
+    "slug": "lighting-showroom-sathorn",
+    "summary": "A showroom kept deliberately dim, so that every lamp can be seen doing its work.",
+    "cover": "lighting-showroom-sathorn-cover.jpg",
+    "typology": "commercial",
+    "services": ["commercial-interior-design"],
+    "neighbourhood": "Sathorn",
+    "city": "Bangkok",
+    "year": 2023,
+    "floorArea": 240,
+    "stage": "completed",
+    "credits": [
+      { "role": "Design director", "teamMember": "ploy" },
+      { "role": "Interior designer", "teamMember": "sirin" }
+    ],
+    "seo": {
+      "metaTitle": "Lighting Showroom in Sathorn | Eaves, a fictional studio",
+      "metaDescription": "A fictional project by Eaves, an invented Bangkok studio: a lighting showroom kept deliberately dim, shown as a portfolio demo.",
+      "shareImage": "lighting-showroom-sathorn-cover.jpg"
+    }
+  },
+  {
+    "title": "Two-Floor Office in Silom",
+    "slug": "office-silom",
+    "summary": "An office for a small accounting team, with quiet rooms on one floor and shared tables on the other.",
+    "cover": "office-silom-cover.jpg",
+    "typology": "workplace",
+    "services": ["workplace-design"],
+    "neighbourhood": "Silom",
+    "city": "Bangkok",
+    "year": 2024,
+    "floorArea": 410,
+    "stage": "completed",
+    "credits": [
+      { "role": "Lead designer", "teamMember": "arun" },
+      { "role": "Interior designer", "teamMember": "mali" }
+    ],
+    "seo": {
+      "metaTitle": "Two-Floor Office in Silom | Eaves, a fictional studio",
+      "metaDescription": "A fictional project by Eaves, an invented Bangkok studio: a two-floor office planned for quiet work, shown as a portfolio demo.",
+      "shareImage": "office-silom-cover.jpg"
+    }
+  },
+  {
+    "title": "Hillside House in Chiang Mai",
+    "slug": "hillside-house-chiang-mai",
+    "summary": "A Concept for a house stepping down a slope under one long roof. It has been designed but never built.",
+    "cover": "hillside-house-chiang-mai-cover.jpg",
+    "typology": "residential",
+    "services": ["architectural-design"],
+    "neighbourhood": "Mae Rim",
+    "city": "Chiang Mai",
+    "year": 2026,
+    "floorArea": 280,
+    "stage": "concept",
+    "credits": [
+      { "role": "Lead designer", "teamMember": "narin" },
+      { "role": "Architectural designer", "teamMember": "thanawat" }
+    ],
+    "seo": {
+      "metaTitle": "Hillside House in Chiang Mai | Eaves, a fictional studio",
+      "metaDescription": "A fictional Concept by Eaves, an invented Bangkok studio: an unbuilt house under one long roof, shown as a portfolio demo.",
+      "shareImage": "hillside-house-chiang-mai-cover.jpg"
+    }
+  }
+]

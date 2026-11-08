@@ -13,6 +13,8 @@
     "check:access": "pnpm --filter @eaves/cms check:access",
     "check:publish": "pnpm --filter @eaves/cms check:publish",
     "check:behaviour": "pnpm --filter @eaves/cms check:behaviour",
+    "check:seed": "pnpm --filter @eaves/cms check:seed",
+    "seed": "pnpm --filter @eaves/cms seed",
     "record:fixtures": "pnpm --filter @eaves/cms record:fixtures",
     "storage:init": "pnpm --filter @eaves/cms storage:init",
     "test": "pnpm --recursive --if-present run test",

@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Residential Interior Design",
+    "slug": "residential-interior-design",
+    "summary": "Interiors for houses, condominiums and private residences, planned around how a household really lives.",
+    "cover": "service-residential-interior.jpg",
+    "spaces": ["Houses", "Condominiums", "Private residences"],
+    "scope": ["Space planning", "Interior concepts", "3D visualization", "Material and furniture selection", "Design documentation"],
+    "order": 1,
+    "seo": {
+      "metaTitle": "Residential Interior Design | Eaves, a fictional studio",
+      "metaDescription": "Eaves is a fictional Bangkok studio. This invented service describes interior design for houses and condominiums, shown as a portfolio demo.",
+      "shareImage": "service-residential-interior.jpg"
+    }
+  },
+  {
+    "name": "Commercial Interior Design",
+    "slug": "commercial-interior-design",
+    "summary": "Cafes, restaurants, shops and showrooms that carry a brand quietly and move people through easily.",
+    "cover": "service-commercial-interior.jpg",
+    "spaces": ["Cafes", "Restaurants", "Retail stores", "Showrooms", "Customer-facing spaces"],
+    "scope": ["Brand-inspired interiors", "Customer flow", "Space planning", "Design development"],
+    "order": 2,
+    "seo": {
+      "metaTitle": "Commercial Interior Design | Eaves, a fictional studio",
+      "metaDescription": "Eaves is a fictional Bangkok studio. This invented service describes interiors for cafes, restaurants and shops, shown as a portfolio demo.",
+      "shareImage": "service-commercial-interior.jpg"
+    }
+  },
+  {
+    "name": "Architectural Design",
+    "slug": "architectural-design",
+    "summary": "Design for new houses and small commercial buildings, shaped first by shade, rain and air.",
+    "cover": "service-architectural.jpg",
+    "spaces": ["New residential and small commercial buildings"],
+    "scope": ["Concept development", "Site and spatial planning", "Architectural drawings", "Design coordination"],
+    "order": 3,
+    "seo": {
+      "metaTitle": "Architectural Design | Eaves, a fictional studio",
+      "metaDescription": "Eaves is a fictional Bangkok studio that holds no professional licence. This invented service describes design for new small buildings.",
+      "shareImage": "service-architectural.jpg"
+    }
+  },
+  {
+    "name": "Workplace Design",
+    "slug": "workplace-design",
+    "summary": "Offices planned for concentration and conversation, with careful attention to light and sound.",
+    "cover": "service-workplace.jpg",
+    "spaces": ["Offices and professional work environments"],
+    "scope": ["Workplace planning", "Meeting and collaboration areas", "Lighting and acoustic considerations", "Furniture and material specifications"],
+    "order": 4,
+    "seo": {
+      "metaTitle": "Workplace Design | Eaves, a fictional studio",
+      "metaDescription": "Eaves is a fictional Bangkok studio. This invented service describes the planning of offices and work environments, shown as a portfolio demo.",
+      "shareImage": "service-workplace.jpg"
+    }
+  },
+  {
+    "name": "Renovation & Space Planning",
+    "slug": "renovation-space-planning",
+    "summary": "A close look at the rooms you already have, and a plan for making more of them.",
+    "cover": "service-renovation.jpg",
+    "spaces": ["Existing residential and commercial spaces"],
+    "scope": ["Existing-space assessment", "Layout improvements", "Renovation concepts", "Material and finish recommendations"],
+    "order": 5,
+    "seo": {
+      "metaTitle": "Renovation & Space Planning | Eaves, a fictional studio",
+      "metaDescription": "Eaves is a fictional Bangkok studio. This invented service describes renovation concepts for existing homes and shops, shown as a portfolio demo.",
+      "shareImage": "service-renovation.jpg"
+    }
+  }
+]

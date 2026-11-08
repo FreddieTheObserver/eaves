@@ -1,0 +1,5 @@
+[
+  { "name": "Residential", "slug": "residential" },
+  { "name": "Commercial", "slug": "commercial" },
+  { "name": "Workplace", "slug": "workplace" }
+]

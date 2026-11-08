@@ -1,0 +1,18 @@
+[
+  {
+    "title": "Privacy",
+    "slug": "privacy",
+    "seo": {
+      "metaTitle": "Privacy | Eaves, a fictional studio",
+      "metaDescription": "Eaves is a fictional studio, but visitors are real. This page explains how the contact form on this portfolio demo treats personal data."
+    }
+  },
+  {
+    "title": "About this demo",
+    "slug": "about-this-demo",
+    "seo": {
+      "metaTitle": "About this demo | Eaves, a fictional studio",
+      "metaDescription": "Eaves is a fictional Bangkok studio built as a portfolio demo. This page explains the project and says what on the site is invented."
+    }
+  }
+]

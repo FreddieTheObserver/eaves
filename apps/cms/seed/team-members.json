@@ -1,0 +1,66 @@
+[
+  {
+    "key": "narin",
+    "name": "Narin Wirachaisuk",
+    "position": "Founding Partner",
+    "portrait": "team-narin.jpg",
+    "bio": "Narin started the Studio to work on small buildings and the rooms inside them. She still draws the first section of every new house herself.",
+    "order": 1
+  },
+  {
+    "key": "ploy",
+    "name": "Ploy Anuwatkul",
+    "position": "Design Director",
+    "portrait": "team-ploy.jpg",
+    "bio": "Ploy sets the direction of the Studio's interiors and looks after how a project reads as a whole. She has strong opinions about door handles.",
+    "order": 2
+  },
+  {
+    "key": "krit",
+    "name": "Krit Sombatthavee",
+    "position": "Lead Designer",
+    "portrait": "team-krit.jpg",
+    "bio": "Krit leads the Studio's new-build design work, starting from the roof and the path of the sun. He keeps a notebook of eaves he has walked under.",
+    "order": 3
+  },
+  {
+    "key": "mali",
+    "name": "Mali Prasertwong",
+    "position": "Interior Designer",
+    "portrait": "team-mali.jpg",
+    "bio": "Mali specifies the materials the Studio uses and tests how they age in Bangkok's damp. Her desk is usually covered in plaster samples.",
+    "order": 4
+  },
+  {
+    "key": "thanawat",
+    "name": "Thanawat Ruangchai",
+    "position": "Architectural Designer",
+    "portrait": "team-thanawat.jpg",
+    "bio": "Thanawat develops site plans and drawings for the Studio's houses. He works closely with the engineers each client appoints.",
+    "order": 5
+  },
+  {
+    "key": "sirin",
+    "name": "Sirin Techamanee",
+    "position": "Interior Designer",
+    "portrait": "team-sirin.jpg",
+    "bio": "Sirin designs cafes, counters and shops, and starts each one by watching how people queue. She measures every stool by sitting on it.",
+    "order": 6
+  },
+  {
+    "key": "arun",
+    "name": "Arun Kittiwong",
+    "position": "Lead Designer",
+    "portrait": "team-arun.jpg",
+    "bio": "Arun leads the Studio's workplace projects, with a particular interest in light and sound. He believes most meetings need a smaller room.",
+    "order": 7
+  },
+  {
+    "key": "nok",
+    "name": "Nok Charoensri",
+    "position": "Design Coordinator",
+    "portrait": "team-nok.jpg",
+    "bio": "Nok keeps drawings moving between the Studio, the engineers and the contractors a client appoints. She knows where every revision is.",
+    "order": 8
+  }
+]
