@@ -5,15 +5,18 @@
 // so it never touches the development database.
 
 const fs = require('fs');
+const http = require('http');
 const path = require('path');
 const { Client } = require('pg')
 const { createStrapi, compileStrapi } = require('@strapi/strapi');
+const { removeFiles, uploadImage } = require('./lib/media');
 
 const appDir = path.resolve(__dirname, '..');
 const webRules = JSON.parse(fs.readFileSync(path.resolve(appDir, '..', 'web', 'src', 'content', 'rules.json'), 'utf8'));
 const scratchName = `eaves_behaviour_${process.pid}_${Date.now()}`;
 const WEB_URL = 'https://web.example';
 const PREVIEW_SECRET = 'behaviour-check-secret';
+const REVALIDATE_SECRET = 'behaviour-check-revalidate';
 
 const server = {
   host: process.env.DATABASE_HOST || 'localhost',
@@ -107,11 +110,97 @@ const checkPreview = async (strapi, base, token) => {
   check('the admin may frame the web app', new RegExp(`frame-src[^;]*${WEB_URL}`).test(policy), policy);
 };
 
+const startReceiver = () =>
+  new Promise((resolve) => {
+    const received = [];
+    const receiver = http.createServer((request, response) => {
+      let body = '';
+      request.on('data', (chunk) => {
+        body += chunk;
+      });
+      request.on('end', () => {
+        received.push({ authorization: request.headers.authorization, body: JSON.parse(body) });
+        response.end();
+      });
+    });
+    receiver.listen(0, '127.0.0.1', () => resolve({ receiver, received, url: `http://127.0.0.1:${receiver.address().port}/api/revalidate` }));
+  });
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const checkWebhook = async (strapi, received, reconcile) => {
+  const documents = (type) => strapi.documents(uidOf(type));
+  const eventsIn = (deliveries) => deliveries.map((delivery) => delivery.body.event).join();
+
+  // Webhooks are sent after the change that caused them, so a Topic created now marks when the earlier ones are in.
+  let marks = 0;
+  const deliveries = async () => {
+    marks++;
+    const mark = await documents('topic').create({ locale: 'en', data: { name: `Mark ${marks}`, slug: `mark-${marks}` } });
+    for (let i = 0; i < 200 && !received.some((delivery) => delivery.body.entry?.documentId === mark.documentId); i++) await wait(25);
+    await wait(100);
+    return received.splice(0).filter((delivery) => delivery.body.entry?.documentId !== mark.documentId);
+  };
+  await deliveries();
+
+  const { documentId } = await documents('page').create({ locale: 'en', data: { title: 'Webhook', slug: 'webhook' } });
+  check('creating a draft sends nothing', (await deliveries()).length === 0);
+  await documents('page').update({ documentId, locale: 'en', data: { title: 'Webhook edited' } });
+  check('saving a draft sends nothing', (await deliveries()).length === 0);
+
+  await documents('page').publish({ documentId, locale: 'en' });
+  const published = await deliveries();
+  check('a publish sends exactly one webhook', eventsIn(published) === 'entry.publish', eventsIn(published));
+  check('the webhook carries the secret', published[0]?.authorization === `Bearer ${REVALIDATE_SECRET}`);
+  check('the webhook names the document', published[0]?.body.uid === uidOf('page') && published[0]?.body.entry?.documentId === documentId);
+
+  await documents('page').unpublish({ documentId, locale: 'en' });
+  const unpublished = await deliveries();
+  check('an unpublish sends one webhook', eventsIn(unpublished) === 'entry.unpublish', eventsIn(unpublished));
+  await documents('page').delete({ documentId, locale: 'en' });
+  const deleted = await deliveries();
+  check('a delete sends a webhook', deleted.length > 0 && deleted.every((delivery) => delivery.body.event === 'entry.delete'), eventsIn(deleted));
+
+  await documents('inquiry').create({ data: { name: 'Visitor', email: 'private@example.com', kind: 'other', message: 'Private', consent: true } });
+  const afterInquiry = await deliveries();
+  check('an Inquiry sends nothing', afterInquiry.length === 0, eventsIn(afterInquiry));
+
+  const typology = await documents('typology').create({ locale: 'en', data: { name: 'Webhook typology', slug: 'webhook-typology' } });
+  check('creating a Typology sends a webhook', eventsIn(await deliveries()) === 'entry.create');
+  await documents('typology').update({ documentId: typology.documentId, locale: 'en', data: { name: 'Renamed typology' } });
+  check('updating a Typology sends a webhook', eventsIn(await deliveries()) === 'entry.update');
+  await documents('typology').delete({ documentId: typology.documentId, locale: 'en' });
+  check('deleting a Typology sends a webhook', eventsIn(await deliveries()) === 'entry.delete');
+
+  const file = await uploadImage(strapi, 'webhook', { width: 64, height: 48 });
+  const uploaded = await deliveries();
+  check('uploading an image sends a webhook', eventsIn(uploaded) === 'media.create', eventsIn(uploaded));
+  await removeFiles(strapi, [file]);
+  const removed = await deliveries();
+  check('deleting an image sends a webhook', eventsIn(removed) === 'media.delete', eventsIn(removed));
+
+  await reconcile(strapi);
+  check('a second bootstrap keeps one webhook', (await strapi.get('webhookStore').findWebhooks()).length === 1);
+  const again = await documents('page').create({ locale: 'en', data: { title: 'Again', slug: 'again' } });
+  await documents('page').publish({ documentId: again.documentId, locale: 'en' });
+  const afterSecondBootstrap = await deliveries();
+  check('a second bootstrap does not send twice', eventsIn(afterSecondBootstrap) === 'entry.publish', eventsIn(afterSecondBootstrap));
+
+  delete process.env.REVALIDATE_URL;
+  await reconcile(strapi);
+  check('without a URL there is no webhook', (await strapi.get('webhookStore').findWebhooks()).length === 0);
+  const last = await documents('page').create({ locale: 'en', data: { title: 'Last', slug: 'last' } });
+  await documents('page').publish({ documentId: last.documentId, locale: 'en' });
+  await wait(300);
+  check('without a URL a publish sends nothing', received.length === 0, String(received.length));
+};
+
 const run = async () => {
   process.chdir(appDir);
   const appContext = await compileStrapi();
 
   await withMaintenanceDb(`CREATE DATABASE "${scratchName}"`);
+  const { receiver, received, url } = await startReceiver();
 
   Object.assign(process.env, {
     DATABASE_CLIENT: 'postgres',
@@ -122,6 +211,8 @@ const run = async () => {
     STRAPI_TELEMETRY_DISABLED: 'true',
     WEB_URL,
     PREVIEW_SECRET,
+    REVALIDATE_URL: url,
+    REVALIDATE_SECRET,
   });
 
   const strapi = await createStrapi(appContext).start();
@@ -130,8 +221,11 @@ const run = async () => {
   try {
     const base = `http://127.0.0.1:${strapi.server.httpServer.address().port}`;
     await checkPreview(strapi, base, await signIn(strapi, base));
+    const { reconcileRevalidationWebhook } = require(path.join(appContext.distDir, 'src', 'webhooks'));
+    await checkWebhook(strapi, received, reconcileRevalidationWebhook);
   } finally {
     await strapi.destroy();
+    receiver.close();
   }
 };
 

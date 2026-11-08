@@ -525,6 +525,7 @@ flowchart LR
   It reads the web app's `rules.json`, so the CMS cannot drift from the bounds and reserved slugs the web app enforces.
 - A behaviour check boots Strapi on a throwaway database and requests Preview links through the admin's own HTTP route, because a Preview handler registers and type-checks fine even when it builds the wrong URL.
   It reads the web app's `rules.json`, so the CMS cannot drift from the route prefixes the web app uses.
+  It also receives the revalidation webhook on a local server and confirms that a publish sends exactly one, and that a draft save or an Inquiry sends none.
 - Every pull request runs type checks, lint, unit tests, end-to-end tests, the schema check, the access check, the publish-rules check, the behaviour check, and a Strapi build.
 
 ## 14. Seed content
