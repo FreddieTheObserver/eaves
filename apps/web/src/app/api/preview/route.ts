@@ -5,16 +5,9 @@ import { secretMatches } from '@/content/secrets';
 const reject = (message: string, status: number): NextResponse => NextResponse.json({ error: message }, { status });
 
 // The path comes from the CMS, but a crafted link must not send a preview to another origin.
-const safePath = (raw: string | null): string | null => {
-  if (!raw) return null;
-
-  let path: string;
-  try {
-    path = decodeURIComponent(raw);
-  } catch {
-    return null;
-  }
-
+// searchParams has already decoded the value, and decoding it again would read a literal % as an escape.
+const safePath = (path: string | null): string | null => {
+  if (!path) return null;
   if (!path.startsWith('/') || path.startsWith('//') || path.includes('\\')) return null;
   if (/[\u0000-\u001f\u007f]/.test(path)) return null;
   return path;

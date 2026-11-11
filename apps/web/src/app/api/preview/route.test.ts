@@ -13,6 +13,9 @@ const preview = (params: Record<string, string>) => {
   return GET(new Request(url));
 };
 
+// The query string exactly as the CMS writes it, with the path percent-encoded once.
+const previewQuery = (query: string) => GET(new Request(`http://localhost:3000/api/preview?${query}`));
+
 beforeEach(() => {
   process.env.PREVIEW_SECRET = 'preview-secret';
   draft.enable.mockClear();
@@ -45,11 +48,20 @@ describe('preview route', () => {
     expect(draft.enable).not.toHaveBeenCalled();
   });
 
-  it('decodes a path the CMS encoded', async () => {
-    const response = await preview({ url: '%2Fprojects%2Flinden-house', secret: 'preview-secret', status: 'draft' });
+  it('reads a path the CMS percent-encoded once', async () => {
+    const response = await previewQuery('url=%2Fprojects%2Flinden-house&secret=preview-secret&status=draft');
 
     expect(response.status).toBe(307);
     expect(response.headers.get('location')).toBe('http://localhost:3000/projects/linden-house');
+  });
+
+  it('does not decode the path a second time', async () => {
+    const encodedSlashes = await previewQuery('url=%252F%252Fevil.example&secret=preview-secret&status=draft');
+    expect(encodedSlashes.status).toBe(400);
+
+    const literalPercent = await previewQuery('url=%2Fprojects%2F100%2525&secret=preview-secret&status=draft');
+    expect(literalPercent.status).toBe(307);
+    expect(literalPercent.headers.get('location')).toBe('http://localhost:3000/projects/100%25');
   });
 
   it('rejects the wrong secret', async () => {

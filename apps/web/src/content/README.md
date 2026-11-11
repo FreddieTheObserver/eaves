@@ -64,6 +64,8 @@ The redirect only accepts a path on this site.
 `submitInquiry(previous, formData)` is the server action in `inquiry.ts`.
 It validates the form with `inquiryInputSchema`, checks the Turnstile token, and creates the Inquiry with the Inquiry token.
 It sends the first address in `x-forwarded-for` as `x-visitor-ip`, and falls back to `127.0.0.1` when local development has no forwarded address.
+A refusal other than the rate limit is logged with its status and never with the form fields, because they are personal data.
+A reply the web app cannot read after the CMS stored the Inquiry is logged and still reported as sent, so the visitor does not send it twice.
 
 ## Rules the Strapi schema cannot enforce
 

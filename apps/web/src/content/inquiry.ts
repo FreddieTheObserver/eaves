@@ -11,6 +11,7 @@ import type { InquiryState } from './types';
 
 const TURNSTILE_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const LOCAL_IP = '127.0.0.1';
+const TURNSTILE_TIMEOUT_MS = 5000;
 
 const turnstileResponse = z.object({ success: z.boolean() });
 
@@ -22,6 +23,12 @@ const visitorIp = async (): Promise<string> => {
   return first && isIP(first) !== 0 ? first : LOCAL_IP;
 };
 
+const failureText = (error: unknown): string => {
+  if (error instanceof HTTPError) return `HTTP ${error.response.status} ${error.response.statusText}`.trim();
+  return error instanceof Error ? error.message : 'unknown error';
+};
+
+// Nothing below logs the form fields, because a name, an email address and a message are personal data.
 const verifyTurnstile = async (token: string, ip: string): Promise<boolean> => {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
@@ -34,12 +41,21 @@ const verifyTurnstile = async (token: string, ip: string): Promise<boolean> => {
       method: 'POST',
       body: new URLSearchParams({ secret, response: token, remoteip: ip }),
       cache: 'no-store',
+      signal: AbortSignal.timeout(TURNSTILE_TIMEOUT_MS),
     });
-    if (!response.ok) return false;
+    if (!response.ok) {
+      console.error(`[inquiry] Turnstile verification answered HTTP ${response.status}`);
+      return false;
+    }
 
     const result = turnstileResponse.safeParse(await response.json());
-    return result.success && result.data.success;
-  } catch {
+    if (!result.success) {
+      console.error('[inquiry] Turnstile verification answered in an unexpected shape');
+      return false;
+    }
+    return result.data.success;
+  } catch (error) {
+    console.error(`[inquiry] Turnstile verification failed: ${failureText(error)}`);
     return false;
   }
 };
@@ -73,14 +89,21 @@ export async function submitInquiry(_previous: InquiryState, formData: FormData)
     return { status: 'invalid', errors: { turnstile: ['The challenge could not be verified. Please try again.'] } };
   }
 
+  let response: unknown;
   try {
-    const response = await inquiryClient(ip).collection(RESOURCES.inquiry).create(result.data);
-    inquiryCreatedSchema.parse(response);
-    return { status: 'sent' };
+    response = await inquiryClient(ip).collection(RESOURCES.inquiry).create(result.data);
   } catch (error) {
     if (error instanceof HTTPError && error.response.status === 429) {
       return { status: 'failed', message: 'Too many messages from this connection. Please try again later.' };
     }
+    console.error(`[inquiry] The CMS did not accept the Inquiry: ${failureText(error)}`);
     return { status: 'failed', message: 'The Inquiry could not be sent. Please try again later.' };
   }
+
+  // The CMS has stored the Inquiry by now, so a reply in an unexpected shape is logged and not shown as a
+  // failure, which would make the visitor send the same message twice.
+  if (!inquiryCreatedSchema.safeParse(response).success) {
+    console.error('[inquiry] The CMS stored the Inquiry but its reply was not in the expected shape');
+  }
+  return { status: 'sent' };
 }

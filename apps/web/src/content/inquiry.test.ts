@@ -158,4 +158,80 @@ describe('Inquiry action', () => {
       message: 'The Inquiry could not be sent. Please try again later.',
     });
   });
+
+  describe('failures', () => {
+    const isTurnstile = (input: unknown) => requestUrl(input).host === 'challenges.cloudflare.com';
+    const logged = (spy: ReturnType<typeof vi.spyOn>) => spy.mock.calls.flat().map(String).join(' | ');
+
+    it('logs why the CMS refused, without the visitor details', async () => {
+      const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+      fetchMock.mockImplementation(async (input: unknown) =>
+        isTurnstile(input) ? json({ success: true }) : new Response(null, { status: 403, statusText: 'Forbidden' })
+      );
+
+      const state = await submitInquiry(idle, form());
+
+      expect(state.status).toBe('failed');
+      expect(logged(errors)).toContain('HTTP 403 Forbidden');
+      expect(logged(errors)).not.toContain('visitor@example.com');
+      expect(logged(errors)).not.toContain('Hello, I would like');
+      errors.mockRestore();
+    });
+
+    it('logs a missing Inquiry token instead of hiding it', async () => {
+      const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+      delete process.env.STRAPI_INQUIRY_TOKEN;
+      fetchMock.mockImplementation(async () => json({ success: true }));
+
+      const state = await submitInquiry(idle, form());
+
+      expect(state.status).toBe('failed');
+      expect(logged(errors)).toContain('STRAPI_INQUIRY_TOKEN is not set');
+      errors.mockRestore();
+    });
+
+    it('does not log a 429, which is the limit working', async () => {
+      const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+      fetchMock.mockImplementation(async (input: unknown) =>
+        isTurnstile(input) ? json({ success: true }) : new Response(null, { status: 429 })
+      );
+
+      await submitInquiry(idle, form());
+
+      expect(errors).not.toHaveBeenCalled();
+      errors.mockRestore();
+    });
+
+    it('logs a Turnstile outage and asks the visitor to try again', async () => {
+      const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+      fetchMock.mockRejectedValue(new Error('network down'));
+
+      const state = await submitInquiry(idle, form());
+
+      expect(state.status).toBe('invalid');
+      expect(logged(errors)).toContain('Turnstile verification failed: network down');
+      errors.mockRestore();
+    });
+
+    it('does not log a Turnstile rejection, which is an ordinary bot', async () => {
+      const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+      fetchMock.mockResolvedValueOnce(json({ success: false }));
+
+      await submitInquiry(idle, form());
+
+      expect(errors).not.toHaveBeenCalled();
+      errors.mockRestore();
+    });
+
+    it('reports sent when the CMS stored the Inquiry but replied in an unexpected shape', async () => {
+      const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+      fetchMock.mockImplementation(async (input: unknown) =>
+        isTurnstile(input) ? json({ success: true }) : json({ unexpected: true }, 201)
+      );
+
+      await expect(submitInquiry(idle, form())).resolves.toEqual({ status: 'sent' });
+      expect(logged(errors)).toContain('stored the Inquiry but its reply was not in the expected shape');
+      errors.mockRestore();
+    });
+  });
 });

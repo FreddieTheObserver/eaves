@@ -496,7 +496,7 @@ Layer 3 builds against these, and each is covered by a CMS check.
   A delete can send one event for each stored row, so the route must tolerate repeats.
   Strapi sends each webhook once and does not retry.
 - Preview: the admin opens `<WEB_URL>/api/preview` with the query parameters `url`, `secret`, and `status`, which is `draft` or `published`.
-  `url` is a path that needs decoding, and `secret` is `PREVIEW_SECRET`.
+  `url` is a path, percent-encoded once as a query value, and `secret` is `PREVIEW_SECRET`.
 - Inquiry: the server action posts to `/api/inquiries` with the Inquiry token and the visitor's IP in the `x-visitor-ip` header, taken from the first address in `x-forwarded-for`.
   A missing or invalid IP gets a 400, and a sixth request within ten minutes gets a 429 with `Retry-After`.
   Local development has no forwarded address, so the action needs a fallback, and all local submissions then share one limit.
