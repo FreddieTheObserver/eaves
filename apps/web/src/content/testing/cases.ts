@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  articleCardDraftSchema,
   articleCardSchema,
   articleDraftSchema,
   articleSchema,
@@ -35,7 +36,7 @@ export const published: Record<string, Published> = {
   'team-member-list': { strict: collection(teamMemberSchema, 'Team Member'), lenient: collection(teamMemberDraftSchema, 'Team Member') },
   'typology-list': { strict: collection(typologySchema, 'Typology') },
   'topic-list': { strict: collection(topicSchema, 'Topic') },
-  'article-list': { strict: collection(articleCardSchema, 'Article') },
+  'article-list': { strict: collection(articleCardSchema, 'Article'), lenient: collection(articleCardDraftSchema, 'Article') },
   'article-published': { strict: collection(articleSchema, 'Article'), lenient: collection(articleDraftSchema, 'Article') },
   'page-published': { strict: collection(pageSchema, 'Page'), lenient: collection(pageDraftSchema, 'Page') },
   'home-page-published': { strict: single(sectionsPageSchema), lenient: single(sectionsPageDraftSchema) },

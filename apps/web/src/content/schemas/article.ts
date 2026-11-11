@@ -49,16 +49,33 @@ export const articleSchema = cardWire
     })
   );
 
-export const articleDraftSchema = z
-  .object({
-    documentId: requiredText,
-    locale: requiredText,
-    slug: maybeText,
-    title: maybeText,
-    excerpt: maybeText,
-    cover: draftCover,
-    topic: draftTopicRef.nullish(),
-    publicationDate: maybeText,
+const draftCardShape = {
+  documentId: requiredText,
+  locale: requiredText,
+  slug: maybeText,
+  title: maybeText,
+  excerpt: maybeText,
+  cover: draftCover,
+  topic: draftTopicRef.nullish(),
+  publicationDate: maybeText,
+};
+const draftCardWire = z.object(draftCardShape);
+
+const toDraftCard = (value: z.output<typeof draftCardWire>): Draft<ArticleCard> => ({
+  id: value.documentId,
+  locale: value.locale,
+  slug: value.slug,
+  title: value.title,
+  excerpt: value.excerpt,
+  cover: value.cover,
+  topic: value.topic ?? undefined,
+  publicationDate: value.publicationDate,
+});
+
+export const articleCardDraftSchema = draftCardWire.transform(toDraftCard);
+
+export const articleDraftSchema = draftCardWire
+  .extend({
     byline: list(draftTeamMemberRef),
     relatedProjects: list(projectCardDraftSchema),
     body: draftBodySchema,
@@ -66,14 +83,7 @@ export const articleDraftSchema = z
   })
   .transform(
     (value): Draft<Article> => ({
-      id: value.documentId,
-      locale: value.locale,
-      slug: value.slug,
-      title: value.title,
-      excerpt: value.excerpt,
-      cover: value.cover,
-      topic: value.topic ?? undefined,
-      publicationDate: value.publicationDate,
+      ...toDraftCard(value),
       byline: value.byline,
       relatedProjects: value.relatedProjects,
       body: value.body,
