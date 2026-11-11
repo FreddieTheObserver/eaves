@@ -138,6 +138,11 @@ export type SlugHistoryEntry = { id: string; oldPath: string; targetType: SlugTa
 
 export type InquiryKind = 'new_project' | 'press' | 'other';
 export type InquiryInput = { name: string; email: string; kind: InquiryKind; message: string; consent: true };
+export type InquiryState =
+  | { status: 'idle' }
+  | { status: 'sent' }
+  | { status: 'invalid'; errors: Record<string, string[]> }
+  | { status: 'failed'; message: string };
 
 export type Pagination = { page: number; pageSize: number; pageCount: number; total: number };
 export type Collection<T> = { items: T[]; pagination: Pagination };

@@ -8,6 +8,7 @@ export {
   getService,
   getServices,
   getSiteSettings,
+  getSlugRedirect,
   getStudioPage,
   getTeamMembers,
   getTopics,

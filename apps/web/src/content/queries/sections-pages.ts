@@ -1,7 +1,7 @@
 import 'server-only';
 import type { API } from '@strapi/client';
 import { cacheLife, cacheTag } from 'next/cache';
-import { UIDS } from '../catalog';
+import { RESOURCES, UIDS } from '../catalog';
 import { draftClient, readClient } from '../client';
 import populate from '../populate.json';
 import { sectionsPageDraftSchema, sectionsPageSchema } from '../schemas';
@@ -9,7 +9,7 @@ import { sectionsPageCacheTags, typeTag } from '../tags';
 import type { HomePage, SectionsPage, SectionsPageDraft, StudioPage } from '../types';
 import { DEFAULT_LOCALE, readSingle } from './shared';
 
-type SectionsResource = 'home-page' | 'studio-page';
+type SectionsResource = typeof RESOURCES.homePage | typeof RESOURCES.studioPage;
 type SectionsUid = typeof UIDS.homePage | typeof UIDS.studioPage;
 
 const query = (locale: string): API.BaseQueryParams => ({
@@ -39,13 +39,13 @@ async function draftSectionsPage(resource: SectionsResource, locale: string): Pr
 }
 
 export const getPublishedHomePage = (locale = DEFAULT_LOCALE): Promise<HomePage> =>
-  publishedSectionsPage('home-page', UIDS.homePage, locale);
+  publishedSectionsPage(RESOURCES.homePage, UIDS.homePage, locale);
 
 export const getPublishedStudioPage = (locale = DEFAULT_LOCALE): Promise<StudioPage> =>
-  publishedSectionsPage('studio-page', UIDS.studioPage, locale);
+  publishedSectionsPage(RESOURCES.studioPage, UIDS.studioPage, locale);
 
 export const getDraftHomePage = (locale = DEFAULT_LOCALE): Promise<SectionsPageDraft> =>
-  draftSectionsPage('home-page', locale);
+  draftSectionsPage(RESOURCES.homePage, locale);
 
 export const getDraftStudioPage = (locale = DEFAULT_LOCALE): Promise<SectionsPageDraft> =>
-  draftSectionsPage('studio-page', locale);
+  draftSectionsPage(RESOURCES.studioPage, locale);

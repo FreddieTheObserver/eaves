@@ -27,6 +27,7 @@ import { getDraftTeamMembers, getPublishedTeamMembers } from './team-members';
 import { DEFAULT_LOCALE } from './shared';
 
 export { getTopics, getTypologies } from './references';
+export { getSlugRedirect } from './slug-history';
 
 // The published branch is cached; the draft branch is not. Reading draft mode here, outside the cached
 // functions, is what lets one page template serve both without asking the cache for drafts.

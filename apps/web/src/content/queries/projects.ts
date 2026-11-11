@@ -1,7 +1,7 @@
 import 'server-only';
 import type { API } from '@strapi/client';
 import { cacheLife, cacheTag } from 'next/cache';
-import { UIDS } from '../catalog';
+import { RESOURCES, UIDS } from '../catalog';
 import { draftClient, readClient } from '../client';
 import populate from '../populate.json';
 import { projectCardDraftSchema, projectCardSchema, projectDraftSchema, projectSchema } from '../schemas';
@@ -37,7 +37,7 @@ export async function getPublishedProjects(
   'use cache';
   cacheLife('max');
 
-  const response = await readClient().collection('projects').find(listQuery(filters, locale));
+  const response = await readClient().collection(RESOURCES.project).find(listQuery(filters, locale));
   const page = readCollection('Project', projectCardSchema, response);
   cacheTag(...listCacheTags(UIDS.project, page.items, projectCardCacheTags));
   return page;
@@ -48,7 +48,7 @@ export async function getDraftProjects(
   locale = DEFAULT_LOCALE
 ): Promise<Collection<ProjectCardDraft>> {
   const query: API.BaseQueryParams = { ...listQuery(filters, locale), status: 'draft' };
-  const response = await draftClient().collection('projects').find(query);
+  const response = await draftClient().collection(RESOURCES.project).find(query);
   return readCollection('Project', projectCardDraftSchema, response);
 }
 
@@ -57,7 +57,7 @@ export async function getPublishedProject(slug: string, locale = DEFAULT_LOCALE)
   cacheLife('max');
   cacheTag(typeTag(UIDS.project));
 
-  const response = await readClient().collection('projects').find(slugQuery(slug, locale));
+  const response = await readClient().collection(RESOURCES.project).find(slugQuery(slug, locale));
   const project = readBySlug('Project', projectSchema, response);
   if (project) cacheTag(...projectCacheTags(project));
   return project;
@@ -65,6 +65,6 @@ export async function getPublishedProject(slug: string, locale = DEFAULT_LOCALE)
 
 export async function getDraftProject(slug: string, locale = DEFAULT_LOCALE): Promise<ProjectDraft | null> {
   const query: API.BaseQueryParams = { ...slugQuery(slug, locale), status: 'draft' };
-  const response = await draftClient().collection('projects').find(query);
+  const response = await draftClient().collection(RESOURCES.project).find(query);
   return readBySlug('Project', projectDraftSchema, response);
 }

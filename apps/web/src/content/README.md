@@ -21,6 +21,46 @@ Pages and components import the types from `types.ts` and never see a Strapi res
 - `fixtures/` holds recorded Strapi responses, and `requests.json` lists the request behind each one.
 - `testing/` maps each fixture to the schemas that must read it.
 
+## Layer 3: reading content
+
+`queries/` holds every Strapi read and the only place that branches on draft mode.
+Pages and components import from `queries/index.ts`, never from a type-specific file.
+
+- `queries/shared.ts` reads lists, singles, and slugs.
+  A dropped item is logged, a contract failure throws, and a missing slug returns `null`.
+- `queries/projects.ts`, `services.ts`, `team-members.ts`, `articles.ts`, `pages.ts`, `sections-pages.ts`, `site-settings.ts`, and `references.ts` hold the published and draft reads.
+- `queries/mode.ts` reads `draftMode()` outside the cached functions.
+  The published branch is cached and the draft branch is not.
+- `queries/slug-history.ts` returns the current path for an old one, or `null` when no redirect exists or the target is not published.
+
+Every published query uses `'use cache'` with `cacheLife('max')` and `cacheTag`.
+The tags cover the type, each document on the page, and every document shown indirectly, such as a Typology, Service, Credit, Topic, Byline, or related Project card.
+A document that breaks a rule is still tagged, so a later fix clears the page.
+
+## Revalidation
+
+`POST /api/revalidate` takes the Strapi webhook described in `apps/cms/src/webhooks.ts`.
+It requires `Authorization: Bearer <REVALIDATE_SECRET>`.
+
+- A content event clears the type tag and the document tag.
+  A delete without a document id still clears the type.
+- A Slug history event clears the history lookup as well.
+- A media event clears every cached content type, because alt text can appear anywhere.
+- Repeated events are harmless, and the route revalidates each tag with the `max` profile.
+
+## Preview
+
+`GET /api/preview` takes `url`, `secret`, and `status`, as Strapi's admin sends them.
+It checks `PREVIEW_SECRET`, enables draft mode for `status=draft`, disables it for `status=published`, and redirects to `url`.
+The redirect only accepts a path on this site.
+`next.config.ts` sets `frame-ancestors` to `CMS_ORIGIN`, so only the CMS admin may frame the site.
+
+## Inquiry
+
+`submitInquiry(previous, formData)` is the server action in `inquiry.ts`.
+It validates the form with `inquiryInputSchema`, checks the Turnstile token, and creates the Inquiry with the Inquiry token.
+It sends the first address in `x-forwarded-for` as `x-visitor-ip`, and falls back to `127.0.0.1` when local development has no forwarded address.
+
 ## Rules the Strapi schema cannot enforce
 
 The strict schemas enforce these when the web app reads published content.

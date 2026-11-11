@@ -1,7 +1,7 @@
 import 'server-only';
 import type { API } from '@strapi/client';
 import { cacheLife, cacheTag } from 'next/cache';
-import { UIDS } from '../catalog';
+import { RESOURCES, UIDS } from '../catalog';
 import { draftClient, readClient } from '../client';
 import populate from '../populate.json';
 import { articleCardDraftSchema, articleCardSchema, articleDraftSchema, articleSchema } from '../schemas';
@@ -35,7 +35,7 @@ export async function getPublishedArticles(
   'use cache';
   cacheLife('max');
 
-  const response = await readClient().collection('articles').find(listQuery(filters, locale));
+  const response = await readClient().collection(RESOURCES.article).find(listQuery(filters, locale));
   const page = readCollection('Article', articleCardSchema, response);
   cacheTag(...listCacheTags(UIDS.article, page.items, articleCardCacheTags));
   return page;
@@ -46,7 +46,7 @@ export async function getDraftArticles(
   locale = DEFAULT_LOCALE
 ): Promise<Collection<ArticleCardDraft>> {
   const query: API.BaseQueryParams = { ...listQuery(filters, locale), status: 'draft' };
-  const response = await draftClient().collection('articles').find(query);
+  const response = await draftClient().collection(RESOURCES.article).find(query);
   return readCollection('Article', articleCardDraftSchema, response);
 }
 
@@ -55,7 +55,7 @@ export async function getPublishedArticle(slug: string, locale = DEFAULT_LOCALE)
   cacheLife('max');
   cacheTag(typeTag(UIDS.article));
 
-  const response = await readClient().collection('articles').find(slugQuery(slug, locale));
+  const response = await readClient().collection(RESOURCES.article).find(slugQuery(slug, locale));
   const article = readBySlug('Article', articleSchema, response);
   if (article) cacheTag(...articleCacheTags(article));
   return article;
@@ -63,6 +63,6 @@ export async function getPublishedArticle(slug: string, locale = DEFAULT_LOCALE)
 
 export async function getDraftArticle(slug: string, locale = DEFAULT_LOCALE): Promise<ArticleDraft | null> {
   const query: API.BaseQueryParams = { ...slugQuery(slug, locale), status: 'draft' };
-  const response = await draftClient().collection('articles').find(query);
+  const response = await draftClient().collection(RESOURCES.article).find(query);
   return readBySlug('Article', articleDraftSchema, response);
 }

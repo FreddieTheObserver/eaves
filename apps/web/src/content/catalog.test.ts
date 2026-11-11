@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { pathOf, sluggedTypeOfUid, UIDS } from './catalog';
+import { pathOf, RESOURCES, sluggedTypeOfUid, uidOfSluggedType, UIDS } from './catalog';
 
 describe('catalog', () => {
   it('builds the route for every slugged type', () => {
@@ -14,5 +14,12 @@ describe('catalog', () => {
     expect(sluggedTypeOfUid(UIDS.article)).toBe('article');
     expect(sluggedTypeOfUid(UIDS.teamMember)).toBeNull();
     expect(sluggedTypeOfUid(UIDS.siteSettings)).toBeNull();
+  });
+
+  it('maps a redirect type back to its UID and resource', () => {
+    expect(uidOfSluggedType('project')).toBe(UIDS.project);
+    expect(uidOfSluggedType('page')).toBe(UIDS.page);
+    expect(RESOURCES.slugHistory).toBe('slug-histories');
+    expect(RESOURCES.project).toBe('projects');
   });
 });

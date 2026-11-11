@@ -1,11 +1,6 @@
 import 'server-only';
 import { strapi, type StrapiClient } from '@strapi/client';
-
-const required = (name: string): string => {
-  const value = process.env[name];
-  if (!value) throw new Error(`${name} is not set`);
-  return value;
-};
+import { required } from './env';
 
 const baseURL = (): string => {
   const url = required('STRAPI_URL').replace(/\/+$/, '');

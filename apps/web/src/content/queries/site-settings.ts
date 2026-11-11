@@ -1,7 +1,7 @@
 import 'server-only';
 import type { API } from '@strapi/client';
 import { cacheLife, cacheTag } from 'next/cache';
-import { UIDS } from '../catalog';
+import { RESOURCES, UIDS } from '../catalog';
 import { draftClient, readClient } from '../client';
 import populate from '../populate.json';
 import { siteSettingsDraftSchema, siteSettingsSchema } from '../schemas';
@@ -19,7 +19,7 @@ export async function getPublishedSiteSettings(locale = DEFAULT_LOCALE): Promise
   cacheLife('max');
   cacheTag(typeTag(UIDS.siteSettings));
 
-  const response = await readClient().single('site-settings').find(query(locale));
+  const response = await readClient().single(RESOURCES.siteSettings).find(query(locale));
   const settings = readSingle('Site Settings', siteSettingsSchema, response);
   cacheTag(...siteSettingsCacheTags(settings));
   return settings;
@@ -27,6 +27,6 @@ export async function getPublishedSiteSettings(locale = DEFAULT_LOCALE): Promise
 
 export async function getDraftSiteSettings(locale = DEFAULT_LOCALE): Promise<SiteSettingsDraft> {
   const draft: API.BaseQueryParams = { ...query(locale), status: 'draft' };
-  const response = await draftClient().single('site-settings').find(draft);
+  const response = await draftClient().single(RESOURCES.siteSettings).find(draft);
   return readSingle('Site Settings', siteSettingsDraftSchema, response);
 }
