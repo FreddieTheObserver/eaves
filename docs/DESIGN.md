@@ -363,6 +363,8 @@ The web app allows framing only by the CMS origin, through a `frame-ancestors` c
 ### Slug history
 
 When a published slug changes, the CMS records the old path in Slug history.
+Unpublishing a document records the path it had, because the path was live: the web app answers 404 for it while the document is unpublished, and with a redirect once the document returns under another slug.
+Publishing at the same slug again takes the path back.
 Before answering with a 404, the web app looks up the path there and, if found, answers with a permanent (301) redirect to the current URL.
 The lookup is cached under its own tag, so a new redirect takes effect as soon as it is recorded.
 Editors can therefore change slugs freely without breaking old links or search results.
@@ -458,7 +460,7 @@ shadcn/ui provides behaviour, not the look.
 - The S3 upload provider points at R2 in production and at MinIO locally, so development uses the same code path.
 - The preview handler in the admin configuration builds the web app's preview URL.
 - Webhooks call the web app's revalidation route.
-- A Document Service middleware records old slugs in Slug history when a published slug changes.
+- A Document Service middleware records old slugs in Slug history when a published slug changes, and the live path when a document is unpublished.
 - The Inquiry create route allows five requests per visitor IP every ten minutes and refuses a request without the IP.
   The web app's server action sends the IP in the `x-visitor-ip` header, and the CMS keeps it only in memory and drops it within a minute of the window ending.
 - A scheduled job at 03:00 Bangkok time every day deletes Inquiries older than 90 days.
@@ -549,7 +551,7 @@ flowchart LR
 - A behaviour check boots Strapi on a throwaway database and requests Preview links through the admin's own HTTP route, because a Preview handler registers and type-checks fine even when it builds the wrong URL.
   It reads the web app's `rules.json`, so the CMS cannot drift from the route prefixes the web app uses.
   It also receives the revalidation webhook on a local server and confirms that a publish sends exactly one, and that a draft save or an Inquiry sends none.
-  It walks a Page through a first publish, renames, a rename back, and a delete, and confirms what Slug history holds after each, including through the admin's Publish and bulk publish routes.
+  It walks a Page through a first publish, renames, a rename back, an unpublish and a return, and a delete, and confirms what Slug history holds after each, including through the admin's Publish, Unpublish, and bulk publish routes.
   It sends Inquiries over real HTTP and confirms the limit per visitor IP, that a request without the IP is refused, and that the IP is not stored.
   It runs the scheduled retention job against backdated Inquiries and confirms which ones are deleted.
 - A seed check boots Strapi on a throwaway database, loads the seed, and reads it back over real HTTP through the web app's strict schemas, failing if anything is dropped, because a broken item and an unpublished relation both disappear without an error.

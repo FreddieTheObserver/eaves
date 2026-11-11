@@ -181,8 +181,26 @@ const checkSlugHistory = async (strapi, base, token) => {
   const bulk = await admin('/actions/bulkPublish?locale=en', { documentIds: [viaBulk] });
   check('bulk publish records the old path', bulk.status === 200 && (await rowAt('/before-bulk'))?.targetDocumentId === viaBulk, `got ${bulk.status}`);
 
+  // An unpublished document is a 404 on the web, so its path is kept as the redirect it will need if it returns renamed.
+  const lapsed = await newPage('lapsed-slug');
+  await pages.unpublish({ documentId: lapsed, locale: 'en' });
+  check('unpublishing records the path that was live', (await rowAt('/lapsed-slug'))?.targetDocumentId === lapsed, await pathsFor(lapsed));
+  await rename(lapsed, 'lapsed-renamed');
+  check('a document that returns under another slug keeps the old path as its redirect', (await pathsFor(lapsed)) === '/lapsed-slug', await pathsFor(lapsed));
+
+  const comeback = await newPage('comeback-slug');
+  await pages.unpublish({ documentId: comeback, locale: 'en' });
+  await publish(comeback);
+  check('a document that returns under the same slug reclaims its path', (await rowAt('/comeback-slug')) === null, await pathsFor(comeback));
+
+  const leftByAdmin = await newPage('left-by-admin');
+  const left = await admin(`/${leftByAdmin}/actions/unpublish?locale=en`, {});
+  check('the admin Unpublish button records the path', left.status === 200 && (await rowAt('/left-by-admin'))?.targetDocumentId === leftByAdmin, `got ${left.status}`);
+
   await pages.delete({ documentId: page, locale: 'en' });
   check('deleting a document removes its records', (await pathsFor(page)) === '', await pathsFor(page));
+  await pages.delete({ documentId: lapsed, locale: 'en' });
+  check('deleting an unpublished document removes its records', (await pathsFor(lapsed)) === '', await pathsFor(lapsed));
   await pages.delete({ documentId: newcomer, locale: 'en' });
 };
 
@@ -317,7 +335,10 @@ const checkWebhook = async (strapi, received, reconcile) => {
 
   await documents('page').unpublish({ documentId, locale: 'en' });
   const unpublished = await deliveries();
-  check('an unpublish sends one webhook', eventsIn(unpublished) === 'entry.unpublish', eventsIn(unpublished));
+  const forDocument = unpublished.filter((delivery) => delivery.body.uid === uidOf('page'));
+  const forRedirect = unpublished.filter((delivery) => delivery.body.uid === uidOf('slug-history'));
+  check('an unpublish sends one webhook for the document', eventsIn(forDocument) === 'entry.unpublish', eventsIn(unpublished));
+  check('and one for the redirect it records', eventsIn(forRedirect) === 'entry.create', eventsIn(unpublished));
   await documents('page').delete({ documentId, locale: 'en' });
   const deleted = await deliveries();
   check('a delete sends a webhook', deleted.length > 0 && deleted.every((delivery) => delivery.body.event === 'entry.delete'), eventsIn(deleted));
