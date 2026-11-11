@@ -503,7 +503,7 @@ Layer 3 builds against these, and each is covered by a CMS check.
 - Slug history: `oldPath` is a full path such as `/projects/old-slug`, and `targetType` and `targetDocumentId` name the document it now points to.
   The lookup must confirm that the document is published and answer 404 if it is not, because unpublishing keeps its records.
 - Routes: the prefix for each type with a slug is in `rules.json`.
-- Media: image URLs are absolute and start with `S3_PUBLIC_URL`, so `next/image` must allow that host.
+- Media: image URLs are absolute and start with `S3_PUBLIC_URL`, so `next/image` must allow that host, which `next.config.ts` does.
   Locally it is `http://127.0.0.1:9000/eaves-media`, and in production it is `https://media.eaves.layaungphyo.dev`.
 
 ### Security
@@ -638,3 +638,5 @@ These choices were made while writing this document rather than in the interview
 - Add an R2 CORS rule for the CMS origin, so the admin's Download button works.
 - Set `CORS_ORIGINS` to `https://eaves.layaungphyo.dev` in production.
 - Revalidate every page after the first production load, because the seed command can exit before its webhooks are delivered.
+- Set `images.deviceSizes` and `images.imageSizes` in `next.config.ts` to the trimmed list of widths from section 10 once the Figma breakpoints are known.
+  The file already allows the media host and sets the cache lifetime.
