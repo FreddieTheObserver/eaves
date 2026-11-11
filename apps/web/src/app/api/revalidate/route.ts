@@ -18,6 +18,8 @@ export async function POST(request: Request): Promise<NextResponse> {
   const tags = tagsForWebhook(payload);
   if (!tags) return NextResponse.json({ error: 'The webhook payload is not recognised' }, { status: 400 });
 
-  for (const tag of tags) revalidateTag(tag, 'max');
+  // A webhook cannot call updateTag, and the Editor who just published expects the next visit to show it, so
+  // stale content is never served. The 'max' profile would serve the old page once more.
+  for (const tag of tags) revalidateTag(tag, { expire: 0 });
   return NextResponse.json({ revalidated: tags });
 }

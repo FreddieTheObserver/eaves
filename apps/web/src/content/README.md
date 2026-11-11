@@ -46,7 +46,8 @@ It requires `Authorization: Bearer <REVALIDATE_SECRET>`.
   A delete without a document id still clears the type.
 - A Slug history event clears the history lookup as well.
 - A media event clears every cached content type, because alt text can appear anywhere.
-- Repeated events are harmless, and the route revalidates each tag with the `max` profile.
+- Repeated events are harmless, and the route expires each tag at once with `{ expire: 0 }`.
+  A webhook cannot call `updateTag`, and the `max` profile would serve the old page to the next visitor.
 
 ## Preview
 

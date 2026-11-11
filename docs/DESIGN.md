@@ -317,7 +317,9 @@ The content module wraps every query in Next.js 16 Cache Components (`use cache`
 For example, a Project page carries the tags of the Team Members in its Credits, so renaming a Team Member refreshes every page that shows them.
 A Strapi webhook calls a secret-protected route in the web app, which invalidates the matching tags.
 It fires on publish, unpublish, and delete for types with Draft and Publish, on create, update, and delete for Typology, Topic, and Slug history, which have no Draft and Publish, and on media changes.
-The exact `revalidateTag` profile is confirmed against the Next.js 16 documentation while building the web data layer.
+The route expires each tag at once with `revalidateTag(tag, { expire: 0 })`.
+A webhook cannot call `updateTag`, and the recommended `max` profile serves the old page to the next visitor while it refreshes, which would show an Editor the old version after publishing and show an unpublished page once more.
+Expiring at once means the first visit after a change waits for a fresh read from Strapi.
 If the CMS is down, visitors still get cached pages.
 
 ```mermaid

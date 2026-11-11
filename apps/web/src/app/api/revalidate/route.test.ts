@@ -47,8 +47,8 @@ describe('revalidation route', () => {
     });
 
     expect(response.status).toBe(200);
-    expect(revalidateTag).toHaveBeenCalledWith(typeTag(UIDS.project), 'max');
-    expect(revalidateTag).toHaveBeenCalledWith(documentTag(UIDS.project, 'projectLinden'), 'max');
+    expect(revalidateTag).toHaveBeenCalledWith(typeTag(UIDS.project), { expire: 0 });
+    expect(revalidateTag).toHaveBeenCalledWith(documentTag(UIDS.project, 'projectLinden'), { expire: 0 });
     await expect(response.json()).resolves.toEqual({
       revalidated: [typeTag(UIDS.project), documentTag(UIDS.project, 'projectLinden')],
     });
