@@ -7,11 +7,11 @@ import populate from '../populate.json';
 import { teamMemberDraftSchema, teamMemberSchema } from '../schemas';
 import { listCacheTags, teamMemberCacheTags } from '../tags';
 import type { Collection, TeamMember, TeamMemberDraft } from '../types';
-import { DEFAULT_LOCALE, readCollection } from './shared';
+import { DEFAULT_LOCALE, readEvery, tagDropped } from './shared';
 
 const listQuery = (locale: string): API.BaseQueryParams => ({
   locale,
-  sort: 'order:asc',
+  sort: ['order:asc', 'name:asc'],
   populate: populate.teamMember,
 });
 
@@ -19,14 +19,20 @@ export async function getPublishedTeamMembers(locale = DEFAULT_LOCALE): Promise<
   'use cache';
   cacheLife('max');
 
-  const response = await readClient().collection(RESOURCES.teamMember).find(listQuery(locale));
-  const page = readCollection('Team Member', teamMemberSchema, response);
+  const page = await readEvery(
+    'Team Member',
+    teamMemberSchema,
+    (pagination) => readClient().collection(RESOURCES.teamMember).find({ ...listQuery(locale), pagination }),
+    tagDropped
+  );
   cacheTag(...listCacheTags(UIDS.teamMember, page.items, teamMemberCacheTags));
   return page;
 }
 
 export async function getDraftTeamMembers(locale = DEFAULT_LOCALE): Promise<Collection<TeamMemberDraft>> {
-  const query: API.BaseQueryParams = { ...listQuery(locale), status: 'draft' };
-  const response = await draftClient().collection(RESOURCES.teamMember).find(query);
-  return readCollection('Team Member', teamMemberDraftSchema, response);
+  return readEvery('Team Member', teamMemberDraftSchema, (pagination) =>
+    draftClient()
+      .collection(RESOURCES.teamMember)
+      .find({ ...listQuery(locale), status: 'draft', pagination })
+  );
 }

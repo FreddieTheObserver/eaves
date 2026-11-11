@@ -7,7 +7,7 @@ import populate from '../populate.json';
 import { pageDraftSchema, pageSchema } from '../schemas';
 import { pageCacheTags, typeTag } from '../tags';
 import type { Page, PageDraft } from '../types';
-import { DEFAULT_LOCALE, readBySlug } from './shared';
+import { DEFAULT_LOCALE, readBySlug, tagDropped } from './shared';
 
 const slugQuery = (slug: string, locale: string): API.BaseQueryParams => ({
   locale,
@@ -21,7 +21,7 @@ export async function getPublishedPage(slug: string, locale = DEFAULT_LOCALE): P
   cacheTag(typeTag(UIDS.page));
 
   const response = await readClient().collection(RESOURCES.page).find(slugQuery(slug, locale));
-  const page = readBySlug('Page', pageSchema, response);
+  const page = readBySlug('Page', pageSchema, response, tagDropped);
   if (page) cacheTag(...pageCacheTags(page));
   return page;
 }

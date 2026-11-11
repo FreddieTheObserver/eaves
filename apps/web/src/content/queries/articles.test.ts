@@ -1,5 +1,7 @@
+import { cacheTag } from 'next/cache';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { loadFixture } from '../testing/fixtures';
+import { change, loadFixture } from '../testing/fixtures';
+import { sortOf } from '../testing/url';
 import { getPublishedArticle, getPublishedArticles } from './articles';
 
 vi.mock('next/cache', () => ({
@@ -21,6 +23,7 @@ beforeEach(() => {
   process.env.STRAPI_URL = 'http://localhost:1337';
   process.env.STRAPI_READ_TOKEN = 'read-token';
   fetchMock.mockReset();
+  vi.mocked(cacheTag).mockClear();
   vi.stubGlobal('fetch', fetchMock);
 });
 
@@ -45,7 +48,7 @@ describe('article queries', () => {
     await getPublishedArticles();
 
     const url = requestUrl(fetchMock.mock.calls[0]!);
-    expect(url.searchParams.get('sort')).toBe('publicationDate:desc');
+    expect(sortOf(url)).toEqual(['publicationDate:desc', 'title:asc']);
     expect(url.searchParams.get('pagination[page]')).toBe('1');
     expect(url.searchParams.get('pagination[pageSize]')).toBe('12');
   });
@@ -70,6 +73,18 @@ describe('article queries', () => {
     expect(article?.byline.length).toBeGreaterThan(0);
     expect(article?.body.length).toBeGreaterThan(0);
     expect(requestUrl(fetchMock.mock.calls[0]!).searchParams.get('filters[slug][$eq]')).toBe('oak-and-light');
+  });
+
+  it('tags a related Project that was dropped, so fixing it clears the Article', async () => {
+    const broken = change(loadFixture('article-published'), ['data', 0, 'relatedProjects', 0, 'cover', 'alternativeText'], '');
+    fetchMock.mockResolvedValueOnce(json(broken));
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const article = await getPublishedArticle('oak-and-light');
+
+    expect(article?.relatedProjects).toHaveLength(0);
+    expect(cacheTag).toHaveBeenCalledWith(expect.stringContaining('content:api::project.project:projectLinden'));
+    errors.mockRestore();
   });
 
   it('returns null when no published Article has the slug', async () => {

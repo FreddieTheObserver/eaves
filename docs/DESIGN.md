@@ -314,7 +314,8 @@ There is no email provider in the CMS, so a Super Admin resets forgotten passwor
 
 Pages are cached by default and cleared when content changes.
 The content module wraps every query in Next.js 16 Cache Components (`use cache` with `cacheTag`), tagged by content type, by document, and by every document the page displays indirectly.
-For example, a Project page carries the tags of the Team Members in its Credits, so renaming a Team Member refreshes every page that shows them.
+For example, a Project page carries the tags of the Team Members in its Credits and of the Team Members its Quotes name, so renaming a Team Member refreshes every page that shows them.
+A card that the web app drops from a page, such as a related Project whose cover lost its alt text, keeps its tag, so fixing that Project refreshes the page that lost it.
 A Strapi webhook calls a secret-protected route in the web app, which invalidates the matching tags.
 It fires on publish, unpublish, and delete for types with Draft and Publish, on create, update, and delete for Typology, Topic, and Slug history, which have no Draft and Publish, and on media changes.
 The route expires each tag at once with `revalidateTag(tag, { expire: 0 })`.

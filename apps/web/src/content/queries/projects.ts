@@ -7,7 +7,7 @@ import populate from '../populate.json';
 import { projectCardDraftSchema, projectCardSchema, projectDraftSchema, projectSchema } from '../schemas';
 import { listCacheTags, projectCacheTags, projectCardCacheTags, typeTag } from '../tags';
 import type { Collection, Project, ProjectCard, ProjectCardDraft, ProjectDraft } from '../types';
-import { DEFAULT_LOCALE, readBySlug, readCollection } from './shared';
+import { DEFAULT_LOCALE, readBySlug, readEvery, tagDropped } from './shared';
 
 export type ProjectFilters = { typology?: string; service?: string };
 
@@ -18,8 +18,7 @@ const filtersOf = ({ typology, service }: ProjectFilters): Record<string, unknow
 
 const listQuery = (filters: ProjectFilters, locale: string): API.BaseQueryParams => ({
   locale,
-  sort: 'year:desc',
-  pagination: { page: 1, pageSize: 25 },
+  sort: ['year:desc', 'title:asc'],
   populate: populate.projectCard,
   filters: filtersOf(filters),
 });
@@ -37,8 +36,12 @@ export async function getPublishedProjects(
   'use cache';
   cacheLife('max');
 
-  const response = await readClient().collection(RESOURCES.project).find(listQuery(filters, locale));
-  const page = readCollection('Project', projectCardSchema, response);
+  const page = await readEvery(
+    'Project',
+    projectCardSchema,
+    (pagination) => readClient().collection(RESOURCES.project).find({ ...listQuery(filters, locale), pagination }),
+    tagDropped
+  );
   cacheTag(...listCacheTags(UIDS.project, page.items, projectCardCacheTags));
   return page;
 }
@@ -47,9 +50,11 @@ export async function getDraftProjects(
   filters: ProjectFilters = {},
   locale = DEFAULT_LOCALE
 ): Promise<Collection<ProjectCardDraft>> {
-  const query: API.BaseQueryParams = { ...listQuery(filters, locale), status: 'draft' };
-  const response = await draftClient().collection(RESOURCES.project).find(query);
-  return readCollection('Project', projectCardDraftSchema, response);
+  return readEvery('Project', projectCardDraftSchema, (pagination) =>
+    draftClient()
+      .collection(RESOURCES.project)
+      .find({ ...listQuery(filters, locale), status: 'draft', pagination })
+  );
 }
 
 export async function getPublishedProject(slug: string, locale = DEFAULT_LOCALE): Promise<Project | null> {
@@ -58,7 +63,7 @@ export async function getPublishedProject(slug: string, locale = DEFAULT_LOCALE)
   cacheTag(typeTag(UIDS.project));
 
   const response = await readClient().collection(RESOURCES.project).find(slugQuery(slug, locale));
-  const project = readBySlug('Project', projectSchema, response);
+  const project = readBySlug('Project', projectSchema, response, tagDropped);
   if (project) cacheTag(...projectCacheTags(project));
   return project;
 }

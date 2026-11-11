@@ -28,14 +28,17 @@ Pages and components import from `queries/index.ts`, never from a type-specific 
 
 - `queries/shared.ts` reads lists, singles, and slugs.
   A dropped item is logged, a contract failure throws, and a missing slug returns `null`.
+  A list that shows every document, such as Services or Team Members, reads every page of it, so none stops at Strapi's default of 25.
+  Every list sorts on a second field, so documents that tie keep the same order.
 - `queries/projects.ts`, `services.ts`, `team-members.ts`, `articles.ts`, `pages.ts`, `sections-pages.ts`, `site-settings.ts`, and `references.ts` hold the published and draft reads.
 - `queries/mode.ts` reads `draftMode()` outside the cached functions.
   The published branch is cached and the draft branch is not.
 - `queries/slug-history.ts` returns the current path for an old one, or `null` when no redirect exists or the target is not published.
 
 Every published query uses `'use cache'` with `cacheLife('max')` and `cacheTag`.
-The tags cover the type, each document on the page, and every document shown indirectly, such as a Typology, Service, Credit, Topic, Byline, or related Project card.
-A document that breaks a rule is still tagged, so a later fix clears the page.
+The tags cover the type, each document on the page, and every document shown indirectly, such as a Typology, Service, Credit, Quote speaker, Topic, Byline, or related Project card.
+A related Project card that is dropped is still tagged, from the report of what was dropped, so a later fix clears the page that lost it.
+A document that is itself dropped from a list or read by slug is covered by the type tag.
 
 ## Revalidation
 

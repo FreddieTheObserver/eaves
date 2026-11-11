@@ -7,7 +7,7 @@ import populate from '../populate.json';
 import { sectionsPageDraftSchema, sectionsPageSchema } from '../schemas';
 import { sectionsPageCacheTags, typeTag } from '../tags';
 import type { HomePage, SectionsPage, SectionsPageDraft, StudioPage } from '../types';
-import { DEFAULT_LOCALE, readSingle } from './shared';
+import { DEFAULT_LOCALE, readSingle, tagDropped } from './shared';
 
 type SectionsResource = typeof RESOURCES.homePage | typeof RESOURCES.studioPage;
 type SectionsUid = typeof UIDS.homePage | typeof UIDS.studioPage;
@@ -27,7 +27,7 @@ async function publishedSectionsPage(
   cacheTag(typeTag(uid));
 
   const response = await readClient().single(resource).find(query(locale));
-  const page = readSingle('Sections page', sectionsPageSchema, response);
+  const page = readSingle('Sections page', sectionsPageSchema, response, tagDropped);
   cacheTag(...sectionsPageCacheTags(uid, page));
   return page;
 }

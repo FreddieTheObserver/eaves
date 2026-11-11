@@ -842,7 +842,7 @@
   "meta": {
     "pagination": {
       "page": 1,
-      "pageSize": 25,
+      "pageSize": 100,
       "pageCount": 1,
       "total": 1
     }

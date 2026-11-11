@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { loadFixture } from '../testing/fixtures';
+import { sortOf } from '../testing/url';
 import { getPublishedTeamMembers } from './team-members';
 
 vi.mock('next/cache', () => ({
@@ -34,6 +35,6 @@ describe('team member queries', () => {
     const [input] = fetchMock.mock.calls[0]!;
     const url = new URL(input instanceof Request ? input.url : String(input));
     expect(url.pathname).toBe('/api/team-members');
-    expect(url.searchParams.get('sort')).toBe('order:asc');
+    expect(sortOf(url)).toEqual(['order:asc', 'name:asc']);
   });
 });

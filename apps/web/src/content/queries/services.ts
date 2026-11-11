@@ -7,11 +7,11 @@ import populate from '../populate.json';
 import { serviceDraftSchema, serviceSchema } from '../schemas';
 import { listCacheTags, serviceCacheTags, typeTag } from '../tags';
 import type { Collection, Service, ServiceDraft } from '../types';
-import { DEFAULT_LOCALE, readBySlug, readCollection } from './shared';
+import { DEFAULT_LOCALE, readBySlug, readEvery, tagDropped } from './shared';
 
 const listQuery = (locale: string): API.BaseQueryParams => ({
   locale,
-  sort: 'order:asc',
+  sort: ['order:asc', 'name:asc'],
   populate: populate.service,
 });
 
@@ -25,16 +25,22 @@ export async function getPublishedServices(locale = DEFAULT_LOCALE): Promise<Col
   'use cache';
   cacheLife('max');
 
-  const response = await readClient().collection(RESOURCES.service).find(listQuery(locale));
-  const page = readCollection('Service', serviceSchema, response);
+  const page = await readEvery(
+    'Service',
+    serviceSchema,
+    (pagination) => readClient().collection(RESOURCES.service).find({ ...listQuery(locale), pagination }),
+    tagDropped
+  );
   cacheTag(...listCacheTags(UIDS.service, page.items, serviceCacheTags));
   return page;
 }
 
 export async function getDraftServices(locale = DEFAULT_LOCALE): Promise<Collection<ServiceDraft>> {
-  const query: API.BaseQueryParams = { ...listQuery(locale), status: 'draft' };
-  const response = await draftClient().collection(RESOURCES.service).find(query);
-  return readCollection('Service', serviceDraftSchema, response);
+  return readEvery('Service', serviceDraftSchema, (pagination) =>
+    draftClient()
+      .collection(RESOURCES.service)
+      .find({ ...listQuery(locale), status: 'draft', pagination })
+  );
 }
 
 export async function getPublishedService(slug: string, locale = DEFAULT_LOCALE): Promise<Service | null> {
@@ -43,7 +49,7 @@ export async function getPublishedService(slug: string, locale = DEFAULT_LOCALE)
   cacheTag(typeTag(UIDS.service));
 
   const response = await readClient().collection(RESOURCES.service).find(slugQuery(slug, locale));
-  const service = readBySlug('Service', serviceSchema, response);
+  const service = readBySlug('Service', serviceSchema, response, tagDropped);
   if (service) cacheTag(...serviceCacheTags(service));
   return service;
 }

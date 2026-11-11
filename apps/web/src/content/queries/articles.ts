@@ -7,7 +7,7 @@ import populate from '../populate.json';
 import { articleCardDraftSchema, articleCardSchema, articleDraftSchema, articleSchema } from '../schemas';
 import { articleCacheTags, articleCardCacheTags, listCacheTags, typeTag } from '../tags';
 import type { Article, ArticleCard, ArticleCardDraft, ArticleDraft, Collection } from '../types';
-import { DEFAULT_LOCALE, readBySlug, readCollection } from './shared';
+import { DEFAULT_LOCALE, readBySlug, readCollection, tagDropped } from './shared';
 
 export type ArticleFilters = { page?: number; topic?: string; pageSize?: number };
 
@@ -16,7 +16,7 @@ const filtersOf = ({ topic }: ArticleFilters): Record<string, unknown> =>
 
 const listQuery = (filters: ArticleFilters, locale: string): API.BaseQueryParams => ({
   locale,
-  sort: 'publicationDate:desc',
+  sort: ['publicationDate:desc', 'title:asc'],
   pagination: { page: filters.page ?? 1, pageSize: filters.pageSize ?? 12 },
   populate: populate.articleCard,
   filters: filtersOf(filters),
@@ -36,7 +36,7 @@ export async function getPublishedArticles(
   cacheLife('max');
 
   const response = await readClient().collection(RESOURCES.article).find(listQuery(filters, locale));
-  const page = readCollection('Article', articleCardSchema, response);
+  const page = readCollection('Article', articleCardSchema, response, tagDropped);
   cacheTag(...listCacheTags(UIDS.article, page.items, articleCardCacheTags));
   return page;
 }
@@ -56,7 +56,7 @@ export async function getPublishedArticle(slug: string, locale = DEFAULT_LOCALE)
   cacheTag(typeTag(UIDS.article));
 
   const response = await readClient().collection(RESOURCES.article).find(slugQuery(slug, locale));
-  const article = readBySlug('Article', articleSchema, response);
+  const article = readBySlug('Article', articleSchema, response, tagDropped);
   if (article) cacheTag(...articleCacheTags(article));
   return article;
 }

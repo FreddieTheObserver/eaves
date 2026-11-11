@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { loadFixture } from '../testing/fixtures';
+import { sortOf } from '../testing/url';
 import { getTopics, getTypologies } from './references';
 
 vi.mock('next/cache', () => ({
@@ -11,6 +12,11 @@ const fetchMock = vi.fn();
 
 const json = (body: unknown): Response =>
   new Response(JSON.stringify(body), { status: 200, headers: { 'content-type': 'application/json' } });
+
+const requestUrl = (call: unknown[]): URL => {
+  const [input] = call;
+  return new URL(input instanceof Request ? input.url : String(input));
+};
 
 beforeEach(() => {
   process.env.STRAPI_URL = 'http://localhost:1337';
@@ -31,6 +37,7 @@ describe('reference queries', () => {
 
     expect(page.items.length).toBeGreaterThan(0);
     expect(page.items[0]?.slug).toBeTruthy();
+    expect(sortOf(requestUrl(fetchMock.mock.calls[0]!))).toEqual(['name:asc']);
   });
 
   it('reads Topics', async () => {
@@ -40,5 +47,6 @@ describe('reference queries', () => {
 
     expect(page.items.length).toBeGreaterThan(0);
     expect(page.items[0]?.name).toBeTruthy();
+    expect(sortOf(requestUrl(fetchMock.mock.calls[0]!))).toEqual(['name:asc']);
   });
 });

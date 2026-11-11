@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { loadFixture } from '../testing/fixtures';
+import { loadFixture, type Json } from '../testing/fixtures';
+import { sortOf } from '../testing/url';
 import { getPublishedProject, getPublishedProjects } from './projects';
 
 vi.mock('next/cache', () => ({
@@ -35,8 +36,25 @@ describe('project queries', () => {
     const page = await getPublishedProjects();
 
     expect(page.items[0]?.slug).toBe('linden-house');
-    expect(page.pagination.pageSize).toBe(25);
-    expect(requestUrl(fetchMock.mock.calls[0]!).pathname).toBe('/api/projects');
+    const url = requestUrl(fetchMock.mock.calls[0]!);
+    expect(url.pathname).toBe('/api/projects');
+    expect(sortOf(url)).toEqual(['year:desc', 'title:asc']);
+    expect(url.searchParams.get('pagination[pageSize]')).toBe('100');
+  });
+
+  it('reads every page, so the list is not cut off at the default page size', async () => {
+    const list = loadFixture('project-list') as { data: Json[]; meta: { pagination: Record<string, Json> } };
+    const twoPages = (page: number) => ({
+      data: list.data,
+      meta: { pagination: { ...list.meta.pagination, page, pageSize: 100, pageCount: 2, total: list.data.length * 2 } },
+    });
+    fetchMock.mockResolvedValueOnce(json(twoPages(1))).mockResolvedValueOnce(json(twoPages(2)));
+
+    const page = await getPublishedProjects();
+
+    expect(page.items).toHaveLength(list.data.length * 2);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(requestUrl(fetchMock.mock.calls[1]!).searchParams.get('pagination[page]')).toBe('2');
   });
 
   it('sends the Typology and Service filters as nested Strapi filters', async () => {

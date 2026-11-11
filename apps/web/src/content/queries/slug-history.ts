@@ -6,7 +6,7 @@ import { pathOf, RESOURCES, uidOfSluggedType } from '../catalog';
 import { readClient } from '../client';
 import { slugHistorySchema } from '../schemas';
 import { requiredText } from '../schemas/shared';
-import { documentTag, slugHistoryTag, slugPathTag, typeTag } from '../tags';
+import { documentTag, slugHistoryTag, typeTag } from '../tags';
 import { readCollection } from './shared';
 
 const targetSchema = z
@@ -40,7 +40,6 @@ export async function getSlugRedirect(path: string): Promise<string | null> {
 
   const oldPath = canonicalPath(path);
   cacheTag(slugHistoryTag);
-  cacheTag(slugPathTag(oldPath));
 
   const historyResponse = await readClient().collection(RESOURCES.slugHistory).find(historyQuery(oldPath));
   const historyPage = readCollection('Slug history', slugHistorySchema, historyResponse);
