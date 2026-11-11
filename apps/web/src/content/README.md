@@ -94,7 +94,6 @@ Broken content still reaches the web app in these ways, and the web app drops it
 - Text of only spaces in a required field, such as a title or the alt text of a Block, which Strapi's required check accepts.
 - A rich text image node, which Strapi accepts.
 - Alt text cleared in the Media Library after the document that uses it was published, because the rules check a document only when it is published.
-- Bulk unpublish, which checks each document while the others are still published.
 - Anything written around the Document Service, such as a transfer, a seed or a direct database write.
 
 ## When published content breaks a rule

@@ -477,7 +477,7 @@ shadcn/ui provides behaviour, not the look.
 - A slug rule refuses to publish a Page with a reserved slug, whatever its case.
 - The reserved slugs, the Selected Projects bounds, and the route prefixes live in the web app's `rules.json`.
   The CMS cannot import the web app at runtime, so it repeats them, and the publish-rules and behaviour checks fail when the two differ.
-- The rules still let some broken content through: text of only spaces, a rich text image node, alt text cleared in the Media Library after publishing, bulk unpublish (below), and anything written around the Document Service, such as a transfer.
+- The rules still let some broken content through: text of only spaces, a rich text image node, alt text cleared in the Media Library after publishing, and anything written around the Document Service, such as a transfer.
   The web app drops what gets through (section 10).
 - A dependency rule refuses to unpublish or delete a document that published pages still depend on.
   Strapi removes an unpublished or deleted document from the published relations that point at it, so the rule finds the published documents that would be left breaking a content rule of the web app.
@@ -486,8 +486,8 @@ shadcn/ui provides behaviour, not the look.
   A Project is protected while removing it would leave a Selected Projects Section with fewer than three Projects.
   A Typology or Topic is protected from deletion while a published Project or Article uses it.
   A relation the web app does not require, such as a Quote speaker, a related Project, or one person among several in a Byline, does not block, so unpublishing it removes it from those pages without a word.
-  Bulk unpublish checks each document while the others are still published, so unpublishing two featured Projects together can pass a check that each would fail alone.
-  The web app then drops the Section rather than failing the Home page (section 10).
+  The admin's bulk Unpublish and bulk Delete remove several documents in one request, so each check counts every document of the request as gone, and unpublishing two featured Projects together is refused when it would leave too few.
+  A bulk action written around the admin, in code, is checked one document at a time, and the web app then drops the Section rather than failing the Home page (section 10).
 
 ### Contract with the web data layer
 
@@ -546,7 +546,7 @@ flowchart LR
 - Lighthouse CI enforces Core Web Vitals budgets on the key pages.
 - A schema check boots Strapi and compares the shared and per-language fields of every content type with section 7, because a missing language flag fails silently.
 - An access check boots Strapi on a throwaway database and tests the roles, the tokens, the draft gate, and CORS over real HTTP, because the gate registers and type-checks fine even when it lets every request through.
-- A publish-rules check boots Strapi on a throwaway database and presses Publish, Unpublish, bulk unpublish, and Delete as a signed-in Super Admin over the admin's own HTTP routes, because the publish and dependency rules register and type-check fine even when the admin's buttons never reach them.
+- A publish-rules check boots Strapi on a throwaway database and presses Publish, Unpublish, bulk unpublish, Delete, and bulk delete as a signed-in Super Admin over the admin's own HTTP routes, because the publish and dependency rules register and type-check fine even when the admin's buttons never reach them.
   It reads the web app's `rules.json`, so the CMS cannot drift from the bounds and reserved slugs the web app enforces.
 - A behaviour check boots Strapi on a throwaway database and requests Preview links through the admin's own HTTP route, because a Preview handler registers and type-checks fine even when it builds the wrong URL.
   It reads the web app's `rules.json`, so the CMS cannot drift from the route prefixes the web app uses.

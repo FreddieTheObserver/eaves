@@ -427,6 +427,34 @@ const run = async () => {
     await documents('project').publish({ documentId: adminProject.id, locale: 'en' });
     const unpublished = await admin(`/collection-types/${personModel}/${adminPerson}/actions/unpublish?locale=en`, {});
     check('admin: Unpublish works once the Credit is gone', unpublished.status === 200 && !(await isPublished('team-member', adminPerson)), `got ${unpublished.status} ${unpublished.message}`);
+
+    // A bulk action removes several documents at once, so a check that looked at one alone would see the others still
+    // published and let each go.
+    const bulkRoute = (action) => `/collection-types/${personModel}/actions/${action}?locale=en`;
+    const pairFirst = await person();
+    const pairSecond = await person();
+    const pairArticle = await articleWith({ byline: [pairFirst, pairSecond] });
+    refusedByAdmin('admin: bulk unpublish of everyone in a Byline is refused', await admin(bulkRoute('bulkUnpublish'), { documentIds: [pairFirst, pairSecond] }), 'would have no one in its Byline.');
+    refusedByAdmin('admin: bulk delete of everyone in a Byline is refused', await admin(bulkRoute('bulkDelete'), { documentIds: [pairFirst, pairSecond] }), 'would have no one in its Byline.');
+    check('admin: nobody in the refused bulk actions was touched', (await isPublished('team-member', pairFirst)) && (await isPublished('team-member', pairSecond)) && (await isPublished('article', pairArticle.id)));
+    const oneOfTwo = await admin(bulkRoute('bulkUnpublish'), { documentIds: [pairFirst] });
+    check('admin: bulk unpublish of one person while another remains is allowed', oneOfTwo.status === 200 && !(await isPublished('team-member', pairFirst)), `got ${oneOfTwo.status} ${oneOfTwo.message}`);
+
+    const serviceModel = encodeURIComponent(uidOf('service'));
+    const pairServiceA = (await publishNew('service', dataFor('service', described))).id;
+    const pairServiceB = (await publishNew('service', dataFor('service', described))).id;
+    await projectWith({ services: [pairServiceA, pairServiceB] });
+    refusedByAdmin('admin: bulk unpublish of every Service of a Project is refused', await admin(`/collection-types/${serviceModel}/actions/bulkUnpublish?locale=en`, { documentIds: [pairServiceA, pairServiceB] }), 'would have no Service.');
+
+    const projectModel = encodeURIComponent(uidOf('project'));
+    const chosen = [];
+    for (let i = 0; i < webRules.selectedProjects.min + 1; i++) chosen.push((await projectWith({})).id);
+    await publishPage('home-page', chosen);
+    const removeProjects = (action, ids) => admin(`/collection-types/${projectModel}/actions/${action}?locale=en`, { documentIds: ids });
+    refusedByAdmin('admin: bulk unpublish that leaves Selected Projects short is refused', await removeProjects('bulkUnpublish', chosen.slice(0, 2)), 'Selected Projects on the Home page would have');
+    refusedByAdmin('admin: bulk delete that leaves Selected Projects short is refused', await removeProjects('bulkDelete', chosen.slice(0, 2)), 'Selected Projects on the Home page would have');
+    const onlyOne = await removeProjects('bulkUnpublish', chosen.slice(0, 1));
+    check('admin: bulk unpublish that leaves enough Selected Projects is allowed', onlyOne.status === 200 && !(await isPublished('project', chosen[0])), `got ${onlyOne.status} ${onlyOne.message}`);
   } finally {
     await removeFiles(strapi, uploaded);
     await strapi.destroy();
