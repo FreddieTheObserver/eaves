@@ -34,6 +34,8 @@ A drawing is a `plan`, a `section`, or an `elevation`.
 Every file in `images/` is a solid-colour placeholder until the Figma pass chooses the image tool.
 `images.json` doubles as the brief, because each entry describes the scene the final image should show.
 Replace a placeholder by saving the final image under the same filename, with its long edge at least 1000 pixels.
+The plans, sections, and elevation are drawn by `pnpm --filter @eaves/cms drawings`, which writes the SVG files in `drawings/` and exports each one into `images/`.
+To change a drawing, edit its geometry in `scripts/build-drawings.js` and run the command again.
 Final files must carry the IPTC marker for AI-generated media, and every placeholder must be replaced before the first production load.
 
 ## Starting again locally

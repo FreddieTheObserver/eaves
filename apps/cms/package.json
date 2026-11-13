@@ -19,6 +19,7 @@
     "check:behaviour": "node scripts/check-behaviour.js",
     "check:seed": "node scripts/check-seed.js",
     "seed": "node scripts/seed.js",
+    "drawings": "node scripts/build-drawings.js",
     "record:fixtures": "node scripts/record-fixtures.js",
     "storage:init": "node scripts/init-storage.js"
   },
@@ -40,6 +41,7 @@
     "@types/node": "^24",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "sharp": "0.35.5",
     "typescript": "^5"
   },
   "engines": {
