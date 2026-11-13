@@ -455,6 +455,34 @@ Every typeface chosen has a Thai companion with matching weights and a web licen
 Fonts are self-hosted through `next/font`.
 shadcn/ui provides behaviour, not the look.
 
+Headings and Quotes use Noto Serif, and text and the interface use Noto Sans.
+Thai pages will use Noto Serif Thai, which is looped, and Noto Sans Thai, which is loopless, with the same weights as their Latin partners.
+All four are variable fonts, and the Thai ones load only on Thai pages.
+No Thai companion has an italic, so a Quote, a caption, or emphasis never depends on italic alone.
+Thai text gets taller line heights through `:lang(th)`, because its marks stack above and below the line.
+
+The palette is Monsoon: a cool green-grey ground, near-black ink, and one deep green accent.
+A cool ground keeps the warm timber and plaster in the images from looking muddy.
+The site is light only, so there is one palette and the images are art-directed against one ground.
+
+| Role | Use |
+| --- | --- |
+| Paper | Page background |
+| Shade | Demo Notice band, alternate sections, image placeholders |
+| Ink | Text and dark bands |
+| Muted | Secondary text and metadata |
+| Accent | Links, buttons, focus ring, and confirmations |
+| Control | Input borders |
+| Line | Dividers only |
+| Error | Form errors |
+| Muted on ink | Secondary text on dark bands |
+
+Every text colour passes 4.5:1 on Paper and on Shade, and Control passes 3:1.
+The Accent fails on a dark band, so text and links there use Paper and Muted on ink.
+Links in running text are underlined, and errors and confirmations show an icon and a sentence as well as their colour.
+The [Eaves Website Figma file](https://www.figma.com/design/ziJaseosuy8y8fqNQbKEnW) holds the values, and layer 4 copies them into the Tailwind theme.
+It has the variables for colour, space, layout, and type, the components, and the four templates.
+
 ## 11. CMS
 
 - The S3 upload provider points at R2 in production and at MinIO locally, so development uses the same code path.
@@ -632,7 +660,7 @@ These choices were made while writing this document rather than in the interview
 - Rename the local folder from `C:\Users\user\eain` to `C:\Users\user\eaves`.
 - Run the Thailand signup checks for Hetzner and R2 before creating either account.
 - Create the public `FreddieTheObserver/eaves` repository when the first code lands.
-- Pick typefaces and the AI image tool during the Figma pass.
+- Pick the AI image tool during the Figma pass.
 - Choose the Studio's contact email address on `layaungphyo.dev`, and set up a monitored inbox for it, because the Privacy page sends data requests there.
   The seed uses `hello@eaves.layaungphyo.dev` until then, in `site-settings.json` and the Privacy page.
 - Replace the seed's placeholder images, and check its invented Team Member names, before the first production load.
